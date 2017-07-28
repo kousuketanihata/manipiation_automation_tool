@@ -1,9 +1,0 @@
-{
-  "data": [
-    ["goto", "http://www.yahoo.co.jp"],
-    ["type", "#srchtxt", "fool"],
-    ["click", "#srchbtn"],
-    ["wait", "#contents div.w div.hd h3 a"],
-    ["snatch", "#contents div.w div.hd h3 a", "innerText"]
-  ]
-}

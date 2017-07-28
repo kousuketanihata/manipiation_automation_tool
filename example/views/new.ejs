@@ -1,0 +1,190 @@
+<%- include('layout_header') %>
+<div id="app">
+    <form method="post">
+        <% /* url入力欄 */ %>
+        <div class="flexbox">
+            <div class="row flexible">
+                <div class="small-3 columns">
+                    <label for="right-label" class="text-left">URL</label>
+                </div>
+                <div class="small-9 columns">
+                    <input id="right-label" type="text" name="url" required="" value="https://doda.jp/DodaFront/View/JobSearchList/j_oc__03L/-preBtn__3/"/>
+                </div>
+            </div>
+        </div>
+        <div class="flexbox">
+            <select name="schedule" class="select-action" >
+                <option value="month">一ヶ月に一回(月初)</option>
+                <option value="week">1週間に一回(毎週月曜の朝)</option>
+                <option value="day">1日に一回(毎日2時)</option>
+            </select>
+        </div>
+        <% /* url入力欄ここまで */ %>
+        <hr/>
+        <p class="red">項目は全て入力して下さい。</p>
+        <% /* 項目入力欄 */ %>
+        <div class="flexbox">
+            <div class="fixed ">
+                <label for="">項目名
+                    <input type="text" v-model="new_config.column">
+                </label>
+            </div>
+            <div class="fixed">
+                <label for="">動作
+                    <select class="select-action" v-model="new_config.action">
+                        <option value="click">クリックする</option>
+                        <option value="check">チェックする</option>
+                        <option value="select">選択する</option>
+                        <option value="enter">入力する</option>
+                        <option value="scraping">スクレイピングする</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="flexible">
+                <label for="">xpath
+                    <input type="text" v-model="new_config.xpath">
+                </label>
+            </div>
+
+            <div class="flexible" v-if="new_config.action =='enter'">
+                <label for="">入力内容
+                    <input type="text" name="column[inputs][]" v-model="new_config.input">
+                </label>
+            </div>
+            <div>
+                <a class="button success top-margin-24" v-on:click="add(new_config)" v-on:keyup.enter="add(new_config)">追加</a>
+            </div>
+        </div>
+        <% /* 項目入力欄ここまで */ %>
+        <p> 下に追加されたデータでクローリングが実行されます。</p>
+        <hr/>
+        <% /* ループして表示するための所 */ %>
+        <div class="flexbox" v-for="config in configs">
+            <div class="fixed ">
+                <label for="">項目名
+                    <input type="text" name="column[name][]" v-model="config.column" required>
+                </label>
+            </div>
+            <div class="fixed">
+                <label for="">動作
+                     <select name="column[actions][]" class="select-action">
+                         <option v-for="action in action_select_options" value="{{ action.value }}" v-bind:selected="action.value == config.action ">
+                             {{ action.label}}
+                         </option>
+                    </select>
+                </label>
+            </div>
+            <div class="flexible xpath">
+                <label for="">xpath
+                    <input type="text" name="column[xpath][]" v-model="config.xpath" >
+                </label>
+            </div>
+            <div class="flexible xpath" v-if="config.action.indexOf('enter') !== -1 ">
+                <label for="">入力内容
+                    <input type="text" name="column[input][]" v-model="config.input" >
+                </label>
+            </div>
+            <div>
+                <a class="button top-margin-24" v-on:click="remove(config)">削除</a>
+            </div>
+        </div>
+        <% /* ループして表示するための所ここまで */ %>
+        <!--<button class="button expanded secondary" v-on:click="prevent_double_send()" v-bind:disabled="isActive">スクレイピングを実行する</button>-->
+        <button class="button expanded secondary" v-on:click="send()">スクレイピングを実行する</button>
+    </form>
+</div>
+<%- include('layout_footer') %>
+<script type="text/javascript">
+    const scraping_configs = [
+        {
+            column: '初期値入力',
+            action : 'enter',
+            input : 'aaa',
+            xpath  : 'ssss'
+        },{
+            column: '初期値入力2',
+            action: 'enter',
+            input: 'fafa',
+            xpath: 'ssss'
+        }
+    ];
+    let app = new Vue({
+        el: '#app',
+        data : {
+            new_config : {
+                column: '',
+                action : '',
+                input : '',
+                xpath : ''
+            },
+            configs : [
+            {
+                column: '初期値入力',
+                action : 'click',
+                input : 'type',
+                xpath  : 'ssss'
+            },{
+                column: '初期値入力2',
+                action: 'enter',
+                input: 'fafa',
+                xpath: 'ssss'
+            }],
+            selected: '',
+            action_select_options : [
+                {label : 'クリックする',value:'click'},
+                {label : 'チェックする',value:'check'},
+                {label : '選択する',value:'select'},
+                {label : '入力する',value:'enter'},
+                {label : 'スクレイピングする',value:'scraping'},
+            ],
+            isActive: false,
+        },
+        methods: {
+            add: function () {
+                // validation 値に空のモノがあったらいれる
+//                if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.xpath === '') {
+//                    // todo :色変える
+//                    return;
+//                    //  動作が入力を選択されている場合
+//                    if (this.new_config.action === 'enter'){
+//                        if (this.new_config.input === ''){
+//                            return;
+//                        }
+//                    }
+//                }
+
+                this.configs.push(this.new_config);
+                this.new_config = {
+                    action: '',
+                    column: '',
+                    input : '',
+                    xpath : ''
+                };
+            },
+            remove : function (config) {
+                for (var config_i = 0; config_i < this.configs.length; config_i++) {
+                    console.log(this.configs[config_i].toString());
+                    console.log(config.toString());
+                    if(this.configs[config_i].toString() === config.toString()) {
+                        this.configs.splice(0,config_i);
+                    }
+                }
+            },
+            send(){
+                // 二重送信防止
+                this.isActive = true;
+                axios.post("/crawl_site",{
+
+                }).then(function (response) {
+                    // ダウンロードさせたい
+                    console.log(response);
+                }).catch(function (error) {
+                    console.log(error);
+                })
+
+            }
+        }
+    })
+</script>
+</html>
