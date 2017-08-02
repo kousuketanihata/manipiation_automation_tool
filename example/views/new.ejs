@@ -8,7 +8,7 @@
                     <label for="right-label" class="text-left">URL</label>
                 </div>
                 <div class="small-9 columns">
-                    <input id="right-label" type="text" name="url" required="" value="https://doda.jp/DodaFront/View/JobSearchList/j_oc__03L/-preBtn__3/"/>
+                    <input id="right-label" type="text" name="url" class="j-url" required="" value="https://www.google.co.jp/"/>
                 </div>
             </div>
         </div>
@@ -34,7 +34,6 @@
                     <select class="select-action" v-model="new_config.action">
                         <option value="click">クリックする</option>
                         <option value="check">チェックする</option>
-                        <option value="select">選択する</option>
                         <option value="enter">入力する</option>
                         <option value="scraping">スクレイピングする</option>
                     </select>
@@ -53,7 +52,7 @@
                 </label>
             </div>
             <div>
-                <a class="button success top-margin-24" v-on:click="add(new_config)" v-on:keyup.enter="add(new_config)">追加</a>
+                <a class="button success top-margin-24" v-on:click="add(new_config)">追加</a>
             </div>
         </div>
         <% /* 項目入力欄ここまで */ %>
@@ -63,7 +62,7 @@
         <div class="flexbox" v-for="config in configs">
             <div class="fixed ">
                 <label for="">項目名
-                    <input type="text" name="column[name][]" v-model="config.column" required>
+                    <input type="text" name="column[name][]" v-model="config.column">
                 </label>
             </div>
             <div class="fixed">
@@ -80,7 +79,7 @@
                     <input type="text" name="column[xpath][]" v-model="config.xpath" >
                 </label>
             </div>
-            <div class="flexible xpath" v-if="config.action.indexOf('enter') !== -1 ">
+            <div class="flexible xpath" v-if="config.action.indexOf('type') !== -1 ">
                 <label for="">入力内容
                     <input type="text" name="column[input][]" v-model="config.input" >
                 </label>
@@ -91,9 +90,23 @@
         </div>
         <% /* ループして表示するための所ここまで */ %>
         <!--<button class="button expanded secondary" v-on:click="prevent_double_send()" v-bind:disabled="isActive">スクレイピングを実行する</button>-->
-        <button class="button expanded secondary" v-on:click="send()">スクレイピングを実行する</button>
+        <a class="button expanded secondary" v-on:click="send()">スクレイピングを実行する</a>
     </form>
 </div>
+<% /* モーダルの中身 */ %>
+<div class="remodal-bg"></div>
+<div class="remodal" data-remodal-id="modal">
+    <button data-remodal-action="close" class="remodal-close"></button>
+    <h3>クローリング結果</h3>
+    <p>
+        Responsive, lightweight, fast, synchronized with CSS animations, fully customizable modal window plugin with declarative configuration and hash tracking.
+    </p>
+    <br>
+    <button data-remodal-action="cancel" class="remodal-cancel">修正する</button>
+    <button data-remodal-action="confirm" class="remodal-confirm">保存する</button>
+</div>
+<% /* モーダルの中身ここまで */ %>
+
 <%- include('layout_footer') %>
 <script type="text/javascript">
     const scraping_configs = [
@@ -109,6 +122,7 @@
             xpath: 'ssss'
         }
     ];
+
     let app = new Vue({
         el: '#app',
         data : {
@@ -120,40 +134,40 @@
             },
             configs : [
             {
-                column: '初期値入力',
-                action : 'click',
-                input : 'type',
-                xpath  : 'ssss'
+                column: '検索ワード入力',
+                action : 'type',
+                xpath  : "form[action=\'/search\']",
+                input: "php求人"
             },{
-                column: '初期値入力2',
-                action: 'enter',
-                input: 'fafa',
-                xpath: 'ssss'
-            }],
+                column: '検索ボタン押す',
+                action: 'click',
+                xpath: 'form[action*=\'/search\'] [type=submit]'
+            },{
+                column: 'スクレイピング実行',
+                action: 'snatch',
+                xpath: '._NId h3 a'
+             }],
             selected: '',
             action_select_options : [
                 {label : 'クリックする',value:'click'},
                 {label : 'チェックする',value:'check'},
-                {label : '選択する',value:'select'},
-                {label : '入力する',value:'enter'},
-                {label : 'スクレイピングする',value:'scraping'},
+                {label : '入力する',value:'type'},
+                {label : 'スクレイピングする',value:'snatch'},
             ],
             isActive: false,
         },
         methods: {
             add: function () {
-                // validation 値に空のモノがあったらいれる
-//                if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.xpath === '') {
-//                    // todo :色変える
-//                    return;
-//                    //  動作が入力を選択されている場合
-//                    if (this.new_config.action === 'enter'){
-//                        if (this.new_config.input === ''){
-//                            return;
-//                        }
-//                    }
-//                }
-
+                // validation 値に空のモノがあったら入れられないようにする
+                if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.xpath === '') {
+                    return;
+                    //  動作が入力を選択されている場合
+                    if (this.new_config.action === 'enter'){
+                        if (this.new_config.input === ''){
+                            return;
+                        }
+                    }
+                }
                 this.configs.push(this.new_config);
                 this.new_config = {
                     action: '',
@@ -164,27 +178,75 @@
             },
             remove : function (config) {
                 for (var config_i = 0; config_i < this.configs.length; config_i++) {
-                    console.log(this.configs[config_i].toString());
-                    console.log(config.toString());
+                    console.dir(this.configs[config_i].toString());
+                    console.dir(config.toString());
                     if(this.configs[config_i].toString() === config.toString()) {
                         this.configs.splice(0,config_i);
                     }
                 }
             },
-            send(){
-                // 二重送信防止
-                this.isActive = true;
-                axios.post("/crawl_site",{
+            send() {
+                let modal = $('[data-remodal-id=modal]').remodal();
+                modal.open();
+                // todo:二重送信防止
+                // this.isActive = true;
 
-                }).then(function (response) {
-                    // ダウンロードさせたい
-                    console.log(response);
-                }).catch(function (error) {
+                // スクレイピングが成功した時に結果を表示する
+                function successProcess(scraped_result) {
+                    console.log(scraped_result);
+                    $('[data-remodal-id=modal]').remodal();
+                }
+
+                // スクレイピング失敗した時にどこで落ちてるか表示してあげる
+                function failProcess(error) {
                     console.log(error);
-                })
+                }
 
+//                $.post({
+//                    url  : '/crawl_site',
+//                    data : {
+//                        'url'      : $('.j-url').val(),
+//                        'schedule' : $('.select-action').val(),
+//                        'config'   : this.configs,
+//                    },
+//                    dataType : 'json'
+//                }).done(function (data) {
+//
+//
+//                }).fail(function (error) {
+////                    failProcess(error);
+//                });
+            },
+            // モーダル確認ボタンが押された時の処理
+            save(){
+                $.post({
+                    url  : '/crawl_site',
+                    data : {
+                        'url'      : $('.j-url').val(),
+                        'schedule' : $('.select-action').val(),
+                        'config'   : this.configs,
+                    },
+                    dataType : 'json'
+                }).done(
+                    location.href('/')
+                ).fail(
+                    alert('保存に失敗しました。システム責任者にお問い合せ下さい')
+                );
             }
         }
-    })
+    });
+
+    // vueで書きたい
+    $(function(){
+        $("input"). keydown(function(e) {
+            if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+    });
+
+
 </script>
 </html>
