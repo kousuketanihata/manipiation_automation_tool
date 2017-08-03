@@ -1,6 +1,4 @@
-// export class sqlite{
 class Sqlite{
-
     // sqlite読み込み
     connection(){
         let sqlite = require('sqlite3').verbose();
@@ -49,23 +47,25 @@ class Sqlite{
     }
 }
 
-let sqlite = new Sqlite();
+// let sqlite = new Sqlite();
+//
+// configs =  sqlite.fetchAll();
+// configs(function (callback) {
+//     console.log(callback);
+// })
+//
+// config = sqlite.fetchById(1);
+// config(function (callback) {
+//     console.log(callback);
+// })
+//
+// var scraping_config = {
+//     title    : 'テスト計画',
+//     schedule : 'aaa',
+//     config   : 'ccc',
+// };
+//
+// sqlite.save(scraping_config);
+// sqlite.delete(2);
 
-configs =  sqlite.fetchAll();
-configs(function (callback) {
-    console.log(callback);
-})
-
-config = sqlite.fetchById(1);
-config(function (callback) {
-    console.log(callback);
-})
-
-var scraping_config = {
-    title    : 'テスト計画',
-    schedule : 'aaa',
-    config   : 'ccc',
-};
-
-sqlite.save(scraping_config);
-sqlite.delete(2);
+export default Sqlite;

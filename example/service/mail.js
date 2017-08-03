@@ -21,3 +21,4 @@ var okurisaki = {
 
 let mail = new Mail();
 
+export default Mail;

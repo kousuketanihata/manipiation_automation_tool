@@ -1,4 +1,4 @@
-class csv {
+class Csv {
     // スクレイピングした内容が配列で入ってくる
     csv_export(scraping) {
         // body...
@@ -23,3 +23,5 @@ var scraping = {
     results: ['社名A','社名B']
 };
 a.csv_export(scraping);
+
+export default Csv

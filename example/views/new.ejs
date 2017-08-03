@@ -41,8 +41,8 @@
             </div>
 
             <div class="flexible">
-                <label for="">xpath
-                    <input type="text" v-model="new_config.xpath">
+                <label for="">query
+                    <input type="text" v-model="new_config.query">
                 </label>
             </div>
 
@@ -74,12 +74,12 @@
                     </select>
                 </label>
             </div>
-            <div class="flexible xpath">
-                <label for="">xpath
-                    <input type="text" name="column[xpath][]" v-model="config.xpath" >
+            <div class="flexible query">
+                <label for="">query
+                    <input type="text" name="column[query][]" v-model="config.query" >
                 </label>
             </div>
-            <div class="flexible xpath" v-if="config.action.indexOf('type') !== -1 ">
+            <div class="flexible query" v-if="config.action.indexOf('type') !== -1 ">
                 <label for="">入力内容
                     <input type="text" name="column[input][]" v-model="config.input" >
                 </label>
@@ -98,12 +98,13 @@
 <div class="remodal" data-remodal-id="modal">
     <button data-remodal-action="close" class="remodal-close"></button>
     <h3>クローリング結果</h3>
-    <p>
-        Responsive, lightweight, fast, synchronized with CSS animations, fully customizable modal window plugin with declarative configuration and hash tracking.
-    </p>
+        <table>
+            <tbody class='j-append-result'>
+            </tbody>
+        </table>
     <br>
-    <button data-remodal-action="cancel" class="remodal-cancel">修正する</button>
-    <button data-remodal-action="confirm" class="remodal-confirm">保存する</button>
+    <button data-remodal-action="cancel"  class="remodal-cancel">修正する</button>
+    <button data-remodal-action="confirm" v-on:click="save()"  class="remodal-confirm">保存する</button>
 </div>
 <% /* モーダルの中身ここまで */ %>
 
@@ -114,12 +115,12 @@
             column: '初期値入力',
             action : 'enter',
             input : 'aaa',
-            xpath  : 'ssss'
+            query  : 'ssss'
         },{
             column: '初期値入力2',
             action: 'enter',
             input: 'fafa',
-            xpath: 'ssss'
+            query: 'ssss'
         }
     ];
 
@@ -130,23 +131,35 @@
                 column: '',
                 action : '',
                 input : '',
-                xpath : ''
+                query : ''
             },
             configs : [
             {
                 column: '検索ワード入力',
                 action : 'type',
-                xpath  : "form[action=\'/search\']",
+                query  : "form[action=\'/search\']",
                 input: "php求人"
             },{
                 column: '検索ボタン押す',
                 action: 'click',
-                xpath: 'form[action*=\'/search\'] [type=submit]'
+                query: 'form[action*=\'/search\'] [type=submit]'
+            }
+            ,{
+                column: 'スクレイピング実行',
+                action: 'snatch',
+                    //*[@id="rso"]/div/div/div[9]/div/div/h3/a
+                    // #rso > div > div > div:nth-child(9) > div > div > h3 > a
+                query: '._NId h3 a'
+            }
+            ,{
+                column: 'ページ遷移',
+                action: 'click',
+                query: 'table#nav > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > a.fl:nth-child(1) > span.csb.ch:nth-child(1)'
             },{
                 column: 'スクレイピング実行',
                 action: 'snatch',
-                xpath: '._NId h3 a'
-             }],
+                query: '._NId h3 a'
+            }],
             selected: '',
             action_select_options : [
                 {label : 'クリックする',value:'click'},
@@ -155,11 +168,12 @@
                 {label : 'スクレイピングする',value:'snatch'},
             ],
             isActive: false,
+            results :['ruby求人とか', 'ruby求人とか', 'ruby求人とか']
         },
         methods: {
             add: function () {
                 // validation 値に空のモノがあったら入れられないようにする
-                if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.xpath === '') {
+                if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.query === '') {
                     return;
                     //  動作が入力を選択されている場合
                     if (this.new_config.action === 'enter'){
@@ -173,7 +187,7 @@
                     action: '',
                     column: '',
                     input : '',
-                    xpath : ''
+                    query : ''
                 };
             },
             remove : function (config) {
@@ -186,8 +200,6 @@
                 }
             },
             send() {
-                let modal = $('[data-remodal-id=modal]').remodal();
-                modal.open();
                 // todo:二重送信防止
                 // this.isActive = true;
 
@@ -202,25 +214,31 @@
                     console.log(error);
                 }
 
-//                $.post({
-//                    url  : '/crawl_site',
-//                    data : {
-//                        'url'      : $('.j-url').val(),
-//                        'schedule' : $('.select-action').val(),
-//                        'config'   : this.configs,
-//                    },
-//                    dataType : 'json'
-//                }).done(function (data) {
-//
-//
-//                }).fail(function (error) {
-////                    failProcess(error);
-//                });
+                $.post({
+                    url  : '/crawl_site',
+                    data : {
+                        'url'      : $('.j-url').val(),
+                        'schedule' : $('.select-action').val(),
+                        'config'   : this.configs,
+                    },
+                    dataType : 'json'
+                }).done(function (results) {
+                    let designedResults = results.map((result)=>{
+                        return ('<tr><td>'+result+'</td></tr>');
+                    });
+
+                    $('.j-append-result').append(designedResults.join());
+                    // modalの中身を取得したデータに書き換える
+                    let modal = $('[data-remodal-id=modal]').remodal();
+                    modal.open();
+                }).fail(function (error) {
+//                    failProcess(error);
+                });
             },
             // モーダル確認ボタンが押された時の処理
             save(){
                 $.post({
-                    url  : '/crawl_site',
+                    url  : '/save',
                     data : {
                         'url'      : $('.j-url').val(),
                         'schedule' : $('.select-action').val(),
@@ -246,7 +264,5 @@
             }
         });
     });
-
-
 </script>
 </html>

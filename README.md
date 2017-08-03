@@ -71,5 +71,3 @@ https://github.com/segmentio/nightmare/blob/master/Readme.md#interact-with-the-p
 |セレクターで指定された<br>単一の要素のpropertyを取得する|scrape|["scrape", "._NId h3 a", "innerText"]|
 |セレクターで指定された<br>要素のpropertyを配列で取得する|snatch|["snatch", "._NId h3 a", "innerText"]|
 
-## 詩
-> ゼロを知れ！いずれの遣り方も、無知であれば許される。 - アレイスター・クロウリー 『トートの書』(国書刊行会、1991年)

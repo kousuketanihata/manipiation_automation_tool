@@ -4,7 +4,7 @@ import co from 'co';
 
 export default class Fool {
   constructor(options = {}) {
-    const { show = false } = options;
+    const { show = true } = options;
     this.nightmare = Nightmare({ show });
   }
 
