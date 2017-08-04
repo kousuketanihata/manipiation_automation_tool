@@ -5,13 +5,20 @@ class Sqlite{
         return new sqlite.Database('config.sqlite3');
     }
 
-    save( scraping_config ){
+    save( scrapingConfig ){
         let db = this.connection();
-        db.serialize(()=> {
-            db.run(
-                "insert into config (title,config,schedule,created_at,updated_at) values (?,?,?,datetime('now'),datetime('now'))", scraping_config.title,scraping_config.config,scraping_config.schedule
-            );
-        });
+        // 更新処理の時
+        if (( typeof( scrapingConfig.id ) != 'undefined' )){
+
+        }else{
+            // 新規作成の時
+            db.serialize(()=> {
+                db.run(
+                    "insert into config (title,config,schedule,created_at,updated_at) values (?,?,?,datetime('now'),datetime('now'))", scrapingConfig.title,scrapingConfig.config,scrapingConfig.schedule
+                );
+            });
+        }
+
     }
 
     delete(id){
@@ -25,8 +32,8 @@ class Sqlite{
         let db = this.connection();
         return function (callback) {
             db.serialize(()=>{
-                db.all('select * from config' , function (err, allRows){
-                    // if (err != null ) throw  err;
+                db.all('select * from config order by id asc' , function (err, allRows){
+                     if (err != null ) throw  err;
                     callback(allRows);
                     db.close();
                 });

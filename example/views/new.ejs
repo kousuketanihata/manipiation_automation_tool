@@ -1,6 +1,16 @@
 <%- include('layout_header') %>
 <div id="app">
     <form method="post">
+        <div class="flexbox">
+            <div class="row flexible">
+                <div class="small-3 columns">
+                    <label for="right-label" class="text-left">クローリング内容</label>
+                </div>
+                <div class="small-9 columns">
+                    <input id="right-label" type="text" name="title" class="j-url" placeholder="メディカル競合分析クローリング" required=""/>
+                </div>
+            </div>
+        </div>
         <% /* url入力欄 */ %>
         <div class="flexbox">
             <div class="row flexible">
@@ -13,13 +23,29 @@
             </div>
         </div>
         <div class="flexbox">
+            <div class="row flexible">
+            <div class="small-3 columns">
+                <label for="right-label" class="text-left">クローリング頻度</label>
+            </div>
             <select name="schedule" class="select-action" >
                 <option value="month">一ヶ月に一回(月初)</option>
                 <option value="week">1週間に一回(毎週月曜の朝)</option>
                 <option value="day">1日に一回(毎日2時)</option>
             </select>
+            </div>
         </div>
-        <% /* url入力欄ここまで */ %>
+        <div class="flexbox">
+            <div class="row flexible">
+                <div class="small-3 columns">
+                    <label for="right-label" class="text-left">クローリング結果送信先</label>
+                </div>
+                <div class="small-9 columns">
+                    <input id="right-label" type="email" placeholder="daredare@leverages.jp" name="title" class="j-url" required=""/>
+                </div>
+            </div>
+        </div>
+
+        <% /* 入力欄ここまで */ %>
         <hr/>
         <p class="red">項目は全て入力して下さい。</p>
         <% /* 項目入力欄 */ %>
@@ -202,18 +228,6 @@
             send() {
                 // todo:二重送信防止
                 // this.isActive = true;
-
-                // スクレイピングが成功した時に結果を表示する
-                function successProcess(scraped_result) {
-                    console.log(scraped_result);
-                    $('[data-remodal-id=modal]').remodal();
-                }
-
-                // スクレイピング失敗した時にどこで落ちてるか表示してあげる
-                function failProcess(error) {
-                    console.log(error);
-                }
-
                 $.post({
                     url  : '/crawl_site',
                     data : {

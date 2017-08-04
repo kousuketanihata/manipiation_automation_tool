@@ -4,8 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const flash = require('connect-flash');
 const express = require('express');
+const expressBatch = require("express-batch");
 const bodyParser = require('body-parser');
-const sqlite = require('./service/sqlite.js');
+import Sqlite from'./service/sqlite.js';
 
 let app = express();
 // エクスプレス初期設定
@@ -24,10 +25,25 @@ app.use(function (req,res,next) {
     next();
 });
 
+// メソッド
+function _croll(){
+
+}
+
+function _designConfig() {
+
+}
+
+//// webルーティング
+
 // 一覧ページ
 app.get('/',function (req,res) {
-
-    res.render('index',{});
+    let configs =  new Sqlite().fetchAll();
+    configs((callback)=>{
+        res.render('index',{
+            configs: callback
+        })
+    })
 });
 
 // 新規登録ページ
@@ -36,8 +52,11 @@ app.get('/new',function(req,res) {
 });
 
 // 編集ページ(新規登録ページと同じでおk)
-app.get('/edit', function (req,res) {
-    res.render('new',{});
+app.get('/edit/:id(\\d+)', function (req,res) {
+    let configCallback = new Sqlite().fetchById(req.params.id);
+    configCallback((callback)=>{
+        res.render('new',{config: callback})
+    });
 });
 
 // 入力内容でスクレイピングして出力と一致していたら
@@ -97,6 +116,23 @@ app.post('/save',function(req,res) {
         res.status(500).send('Wrong password');
     }
 });
+
+app.post('/delete', (req,res)=>{
+    const sqlite =  new Sqlite();
+    // todo
+    const id = req.body;
+    // エラー処理的なやつ
+    if(sqlite.delete(id)){
+
+    }else{
+        // 500番返す的な
+    };
+})
+
+
+// apiルーティング
+
+
 
 
 app.listen(8888,()=> {

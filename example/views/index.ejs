@@ -1,3 +1,38 @@
 <%- include('layout_header') %>
-    <h4>クローリング計画一覧</h4>
+<div class="row">
+    <div class="columns">
+        <h3>クローリング計画一覧</h3>
+        <table class="unstriped">
+            <thead>
+            <tr>
+                <th width="50">id</th>
+                <th>タイトル URL</th>
+                <th width="150">メール宛先</th>
+                <th width="150">実行スケジュール</th>
+                <th width="100"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% configs.forEach((value,key)=>{ %>
+            <tr>
+                <td><a href="/edit/<%= value.id %>"><%= value.id %></a></td>
+                <td>
+                    <%= value.title %><br/>
+                    url : <%= value.url %>
+                </td>
+                <td><%= value.email %></td>
+                <td><%= value.schedule %></td>
+                <td>
+                    <button type="button" class="alert button">
+                        削除
+                    </button>
+                </td>
+            </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
 <%- include('layout_footer') %>
+
+</html>
