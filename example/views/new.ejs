@@ -4,10 +4,10 @@
         <div class="flexbox">
             <div class="row flexible">
                 <div class="small-3 columns">
-                    <label for="right-label" class="text-left">クローリング内容</label>
+                    <label for="right-label" class="text-left">クローリング内容 <span class="red" v-show="!validation.title">タイトルは必ず入力して下さい</span> </label>
                 </div>
                 <div class="small-9 columns">
-                    <input id="right-label" type="text" name="title" class="j-url" placeholder="メディカル競合分析クローリング" required=""/>
+                    <input id="right-label" type="text" v-model="title" placeholder="メディカル競合分析クローリング"/>
                 </div>
             </div>
         </div>
@@ -15,19 +15,19 @@
         <div class="flexbox">
             <div class="row flexible">
                 <div class="small-3 columns">
-                    <label for="right-label" class="text-left">URL</label>
+                    <label for="right-label" class="text-left">URL <span class="red" v-show="!validation.url">URLは必ずURL形式で入力して下さい</span></label>
                 </div>
                 <div class="small-9 columns">
-                    <input id="right-label" type="text" name="url" class="j-url" required="" value="https://www.google.co.jp/"/>
+                    <input id="right-label" type="text" v-model="url" placeholder="https://www.google.co.jp/"/>
                 </div>
             </div>
         </div>
         <div class="flexbox">
             <div class="row flexible">
             <div class="small-3 columns">
-                <label for="right-label" class="text-left">クローリング頻度</label>
+                <label for="right-label" class="text-left">クローリング頻度<span class="red" v-show="!validation.schedule">クローリング頻度は必ず選択して下さい</span></label>
             </div>
-            <select name="schedule" class="select-action" >
+            <select v-model="schedule" class="select-action" >
                 <option value="month">一ヶ月に一回(月初)</option>
                 <option value="week">1週間に一回(毎週月曜の朝)</option>
                 <option value="day">1日に一回(毎日2時)</option>
@@ -38,9 +38,10 @@
             <div class="row flexible">
                 <div class="small-3 columns">
                     <label for="right-label" class="text-left">クローリング結果送信先</label>
+                    <span class="red" v-show="!validation.email">クローリング結果送信先は必ずemail形式で入力して下さい</span>
                 </div>
                 <div class="small-9 columns">
-                    <input id="right-label" type="email" placeholder="daredare@leverages.jp" name="title" class="j-url" required=""/>
+                    <input id="right-label" type="email" placeholder="daredare@leverages.jp" v-model="email"/>
                 </div>
             </div>
         </div>
@@ -111,7 +112,7 @@
                 </label>
             </div>
             <div>
-                <a class="button top-margin-24" v-on:click="remove(config)">削除</a>
+                <a class="alert button top-margin-24" v-on:click="removeConfig(config)">削除</a>
             </div>
         </div>
         <% /* ループして表示するための所ここまで */ %>
@@ -130,7 +131,7 @@
         </table>
     <br>
     <button data-remodal-action="cancel"  class="remodal-cancel">修正する</button>
-    <button data-remodal-action="confirm" v-on:click="save()"  class="remodal-confirm">保存する</button>
+    <button data-remodal-action="confirm" v-on:click="save" class="remodal-confirm">保存する</button>
 </div>
 <% /* モーダルの中身ここまで */ %>
 
@@ -153,6 +154,10 @@
     let app = new Vue({
         el: '#app',
         data : {
+            title : '',
+            url : 'https://www.google.co.jp/',
+            email :'',
+            schedule : '',
             new_config : {
                 column: '',
                 action : '',
@@ -173,8 +178,6 @@
             ,{
                 column: 'スクレイピング実行',
                 action: 'snatch',
-                    //*[@id="rso"]/div/div/div[9]/div/div/h3/a
-                    // #rso > div > div > div:nth-child(9) > div > div > h3 > a
                 query: '._NId h3 a'
             }
             ,{
@@ -193,11 +196,29 @@
                 {label : '入力する',value:'type'},
                 {label : 'スクレイピングする',value:'snatch'},
             ],
-            isActive: false,
-            results :['ruby求人とか', 'ruby求人とか', 'ruby求人とか']
+            isActive: false
+        },
+        computed :{
+            validation : function(){
+                let emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                let urlRE = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+
+                return {
+                    title : !!this.title.trim(),
+                    url : urlRE.test(this.url),
+                    email: emailRE.test(this.email),
+                    schedule : !!this.schedule.trim(),
+                }
+            },
+            isValid : function() {
+                let validation = this.validation
+                    return Object.keys(validation).every(function (key) {
+                        return validation[key]
+                    })
+                }
         },
         methods: {
-            add: function () {
+            add: function() {
                 // validation 値に空のモノがあったら入れられないようにする
                 if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.query === '') {
                     return;
@@ -216,55 +237,61 @@
                     query : ''
                 };
             },
-            remove : function (config) {
-                for (var config_i = 0; config_i < this.configs.length; config_i++) {
-                    console.dir(this.configs[config_i].toString());
-                    console.dir(config.toString());
-                    if(this.configs[config_i].toString() === config.toString()) {
-                        this.configs.splice(0,config_i);
-                    }
+            //todo  直す
+            removeConfig : (config)=> {
+              this.configs
+            },
+            send: function(){
+                // validation
+                if (this.isValid) {
+                    // todo:二重送信防止
+                    // this.isActive = true;
+                    // 送信する値
+                    $.post({
+                        url: '/crawl_site',
+                        data: {
+                            url: this.url,
+                            config: this.configs,
+                        },
+                        dataType: 'json'
+                    }).done(function (results) {
+                        let designedResults = results.map((result) => {
+                            return ('<tr><td>' + result + '</td></tr>');
+                        });
+                        // モーダルの中を初期化する
+                        $('.j-append-result').empty();
+                        $('.j-append-result').append(designedResults.join());
+                        // modalの中身を取得したデータに書き換える
+                        let modal = $('[data-remodal-id=modal]').remodal();
+                        modal.open();
+                        // todo:二重送信防止はずす
+                        // this.isActive = false;
+                        // vue jsでイベント取れなかったので苦肉の策
+                    $(document).on('confirmation', '.remodal', ()=> {
+                        // 値のバリデーション
+                        this._validation(configs);
+                        // 保存処理
+                        $.post({
+                            url  : '/save',
+                            data : {
+                                url: this.url,
+                                title : this.title,
+                                email:this.email,
+                                schedule : this.schedule,
+                                config: this.configs,
+                            },
+                            dataType : 'json'
+                        }).done(
+                            location.href = '/'
+                        ).fail(
+                            alert('保存に失敗しました。システム責任者にお問い合せ下さい')
+                        );
+                    });
+                    }).fail(function (error) {
+//                    failProcess(error);
+                    });
                 }
             },
-            send() {
-                // todo:二重送信防止
-                // this.isActive = true;
-                $.post({
-                    url  : '/crawl_site',
-                    data : {
-                        'url'      : $('.j-url').val(),
-                        'schedule' : $('.select-action').val(),
-                        'config'   : this.configs,
-                    },
-                    dataType : 'json'
-                }).done(function (results) {
-                    let designedResults = results.map((result)=>{
-                        return ('<tr><td>'+result+'</td></tr>');
-                    });
-
-                    $('.j-append-result').append(designedResults.join());
-                    // modalの中身を取得したデータに書き換える
-                    let modal = $('[data-remodal-id=modal]').remodal();
-                    modal.open();
-                }).fail(function (error) {
-//                    failProcess(error);
-                });
-            },
-            // モーダル確認ボタンが押された時の処理
-            save(){
-                $.post({
-                    url  : '/save',
-                    data : {
-                        'url'      : $('.j-url').val(),
-                        'schedule' : $('.select-action').val(),
-                        'config'   : this.configs,
-                    },
-                    dataType : 'json'
-                }).done(
-                    location.href('/')
-                ).fail(
-                    alert('保存に失敗しました。システム責任者にお問い合せ下さい')
-                );
-            }
         }
     });
 

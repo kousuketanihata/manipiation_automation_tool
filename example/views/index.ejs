@@ -1,5 +1,5 @@
 <%- include('layout_header') %>
-<div class="row">
+<div class="row" id="app">
     <div class="columns">
         <h3>クローリング計画一覧</h3>
         <table class="unstriped">
@@ -23,9 +23,7 @@
                 <td><%= value.email %></td>
                 <td><%= value.schedule %></td>
                 <td>
-                    <button type="button" class="alert button">
-                        削除
-                    </button>
+                    <button type="button" class="alert button" v-on:click="remove(<%= value.id %>)">削除</button>
                 </td>
             </tr>
             <% }) %>
@@ -33,6 +31,31 @@
         </table>
     </div>
 </div>
-<%- include('layout_footer') %>
+<div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking:false">
+    <button data-remodal-action="close" class="remodal-close"></button>
+    <h5>削除してもよろしいでしょうか？</h5>
+    <button data-remodal-action="cancel" class="remodal-cancel">Cancel</button>
+    <button data-remodal-action="confirm" class="remodal-confirm">OK</button>
+</div>
 
+<%- include('layout_footer') %>
+<script>
+    let app = new Vue({
+        el : '#app',
+        methods :{
+            remove : function(id){
+                // ポップアップ出して確認
+                let modal = $('[data-remodal-id=modal]').remodal();
+                modal.open();
+                $(document).on('confirmation', '.remodal', function () {
+                    $.post({
+                        url: '/delete/'+ id,
+                    }).done(
+                        location.href="/"
+                    );
+                });
+            }
+        }
+    });
+</script>
 </html>

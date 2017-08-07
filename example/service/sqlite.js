@@ -32,7 +32,7 @@ class Sqlite{
         let db = this.connection();
         return function (callback) {
             db.serialize(()=>{
-                db.all('select * from config order by id asc' , function (err, allRows){
+                db.all('select * from config order by id desc' , function (err, allRows){
                      if (err != null ) throw  err;
                     callback(allRows);
                     db.close();

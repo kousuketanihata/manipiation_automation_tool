@@ -71,6 +71,7 @@ app.post('/crawl_site',function (req,res) {
     const fool = new Fool();
 
     let scraping_by_http = req.body;
+    console.log(scraping_by_http);
     // json形式にデータ構造を変換する
     let scraping = [
         ["goto",scraping_by_http.url]
@@ -89,7 +90,6 @@ app.post('/crawl_site',function (req,res) {
             scraping.push([scraping_by_http.config[i].action , scraping_by_http.config[i].query]);
         }
     }
-
     co(function* () {
         let results = [];
         results.push(
@@ -109,6 +109,7 @@ app.post('/crawl_site',function (req,res) {
 // クローリング処理を保存 渡されたオブジェクト全保存
 app.post('/save',function(req,res) {
     let scrapingByHttp = req.body;
+    console.log(scrapingByHttp);
     if (sqlite.save(scrapingByHttp)){
         req.flash('message','保存が成功しました');
     }else {
@@ -117,23 +118,41 @@ app.post('/save',function(req,res) {
     }
 });
 
-app.post('/delete', (req,res)=>{
+app.post('/delete/:id', (req,res)=>{
     const sqlite =  new Sqlite();
-    // todo
-    const id = req.body;
+    const id = req.params.id;
     // エラー処理的なやつ
     if(sqlite.delete(id)){
-
+        res.status(200);
     }else{
         // 500番返す的な
+        res.status(500);
     };
 })
 
-
 // apiルーティング
+// 月別のやつ
+app.get('/api/month',()=>{
 
+});
 
+// 週ごとのやつ
+app.get('/api/week',()=>{
 
+});
+
+// 日毎のやつ
+app.get('/api/day',()=>{
+
+});
+
+// apiで使う共通処理
+function _main(config) {
+    // jsonに戻す処理
+    // クローリング
+    // csv出力
+    // 宛先に送信
+}
 
 app.listen(8888,()=> {
 });
