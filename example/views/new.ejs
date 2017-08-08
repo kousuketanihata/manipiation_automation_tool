@@ -37,8 +37,7 @@
         <div class="flexbox">
             <div class="row flexible">
                 <div class="small-3 columns">
-                    <label for="right-label" class="text-left">クローリング結果送信先</label>
-                    <span class="red" v-show="!validation.email">クローリング結果送信先は必ずemail形式で入力して下さい</span>
+                    <label for="right-label" class="text-left">クローリング結果送信先<span class="red" v-show="!validation.email">クローリング結果送信先は必ずemail形式で入力して下さい</span></label>
                 </div>
                 <div class="small-9 columns">
                     <input id="right-label" type="email" placeholder="daredare@leverages.jp" v-model="email"/>
@@ -136,28 +135,20 @@
 <% /* モーダルの中身ここまで */ %>
 
 <%- include('layout_footer') %>
-<script type="text/javascript">
-    const scraping_configs = [
-        {
-            column: '初期値入力',
-            action : 'enter',
-            input : 'aaa',
-            query  : 'ssss'
-        },{
-            column: '初期値入力2',
-            action: 'enter',
-            input: 'fafa',
-            query: 'ssss'
-        }
-    ];
+<% if (typeof config === 'undefined') {
+    var config = '';
+}else{
+//    var scrapingConfig = config.config.split('\t');
+} %>
 
+<script type="text/javascript">
     let app = new Vue({
         el: '#app',
         data : {
-            title : '',
-            url : 'https://www.google.co.jp/',
-            email :'',
-            schedule : '',
+            title : '<%= config.title %>',
+            url : '<%= config.url %>',
+            email :'<%= config.email %>',
+            schedule : '<%= config.schedule %>',
             new_config : {
                 column: '',
                 action : '',
@@ -242,17 +233,21 @@
               this.configs
             },
             send: function(){
-                // validation
-                if (this.isValid) {
+//                if (this.isValid) {
                     // todo:二重送信防止
                     // this.isActive = true;
                     // 送信する値
+                    let validatedValues = {
+                        url: this.url,
+                        path : location.pathname,
+                        config: this.configs,
+                        title : this.title,
+                        email:this.email,
+                        schedule : this.schedule,
+                    }
                     $.post({
                         url: '/crawl_site',
-                        data: {
-                            url: this.url,
-                            config: this.configs,
-                        },
+                        data: validatedValues,
                         dataType: 'json'
                     }).done(function (results) {
                         let designedResults = results.map((result) => {
@@ -267,30 +262,22 @@
                         // todo:二重送信防止はずす
                         // this.isActive = false;
                         // vue jsでイベント取れなかったので苦肉の策
-                    $(document).on('confirmation', '.remodal', ()=> {
-                        // 値のバリデーション
-                        this._validation(configs);
+                        $(document).on('confirmation', '.remodal', function() {
                         // 保存処理
                         $.post({
                             url  : '/save',
-                            data : {
-                                url: this.url,
-                                title : this.title,
-                                email:this.email,
-                                schedule : this.schedule,
-                                config: this.configs,
-                            },
+                            data : validatedValues,
                             dataType : 'json'
                         }).done(
                             location.href = '/'
-                        ).fail(
-                            alert('保存に失敗しました。システム責任者にお問い合せ下さい')
-                        );
+                        ).fail(function (jqXHR,textStatus,errorThrow) {
+                            console.log(jqXHR,textStatus,errorThrow);
+                        });
                     });
                     }).fail(function (error) {
-//                    failProcess(error);
+                        console.log(error);
                     });
-                }
+//                }
             },
         }
     });

@@ -1,23 +1,29 @@
 const co = require('co');
-import Fool from '../index';
 const fs = require('fs');
 const path = require('path');
 const flash = require('connect-flash');
 const express = require('express');
+const session = require('express-session');
 const expressBatch = require("express-batch");
+const expressValidator  = require("express-validator");
 const bodyParser = require('body-parser');
+import Fool from '../index';
 import Sqlite from'./service/sqlite.js';
 
 let app = express();
 // エクスプレス初期設定
+app.use(require('connect-flash')());
 app.set('views', __dirname + '/views');
 app.set('view engine','ejs');
 app.use(express.static('public'));
-app.use(flash());
 app.use(bodyParser.urlencoded({
     extended : true
     })
 );
+app.use(function (req, res, next) {
+    res.locals.messages = require('express-messages')(req, res);
+    next();
+});
 
 app.use(function (req,res,next) {
     res.header("Access-Control-Allow-Origin","*");
@@ -33,6 +39,10 @@ function _croll(){
 function _designConfig() {
 
 }
+
+app.get('/test',function (req,res) {
+    req.flash("info", "Email queued");
+});
 
 //// webルーティング
 
@@ -69,9 +79,7 @@ app.post('/crawl_site',function (req,res) {
 
     // クローラーのエンジン部分
     const fool = new Fool();
-
     let scraping_by_http = req.body;
-    console.log(scraping_by_http);
     // json形式にデータ構造を変換する
     let scraping = [
         ["goto",scraping_by_http.url]
@@ -109,12 +117,14 @@ app.post('/crawl_site',function (req,res) {
 // クローリング処理を保存 渡されたオブジェクト全保存
 app.post('/save',function(req,res) {
     let scrapingByHttp = req.body;
-    console.log(scrapingByHttp);
+    const sqlite = new Sqlite();
     if (sqlite.save(scrapingByHttp)){
-        req.flash('message','保存が成功しました');
+        res.contentType("application/json");
+        res.status(200);
+        res.end(JSON.stringify({"message": "upload success"}));
     }else {
         // エラーの時の処理
-        res.status(500).send('Wrong password');
+        res.status(500).send('something error');
     }
 });
 
@@ -123,6 +133,7 @@ app.post('/delete/:id', (req,res)=>{
     const id = req.params.id;
     // エラー処理的なやつ
     if(sqlite.delete(id)){
+        res.contentType("application/json");
         res.status(200);
     }else{
         // 500番返す的な
@@ -154,5 +165,5 @@ function _main(config) {
     // 宛先に送信
 }
 
-app.listen(8888,()=> {
+app.listen(9997,()=> {
 });

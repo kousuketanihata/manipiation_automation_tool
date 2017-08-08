@@ -6,19 +6,44 @@ class Sqlite{
     }
 
     save( scrapingConfig ){
+        // いい感じにしたい
+        function _joinObj(obj, fDelimiter, sDelimiter) {
+            let tmpArr = [];
+            if (typeof obj === 'undefined') return '';
+            if (typeof fDelimiter === 'undefined') fDelimiter = '';
+            if (typeof sDelimiter === 'undefined') sDelimiter = '';
+
+            for (let key in obj) {
+                tmpArr.push(key + fDelimiter + obj[key]);
+            }
+            return tmpArr.join(sDelimiter);
+        };
+
+        // タブ文字で結合する
+        let saveConfig = scrapingConfig.config.map(function (data,index) {
+            return _joinObj(data,'=','/t');
+        });
+
+        saveConfig = saveConfig.join('\s');
+
+        let id = scrapingConfig.path.replace(/[^0-9^\.]/g,"");
         let db = this.connection();
         // 更新処理の時
-        if (( typeof( scrapingConfig.id ) != 'undefined' )){
-
+        if ( typeof( id ) != 'undefined' ){
+            db.serialize(()=>{
+                db.run("update config set title = ?,config = ?, schedule = ?, url = ?,email = ?, updated_at = datetime('now')  where id = ?", scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email,id)
+            })
         }else{
             // 新規作成の時
             db.serialize(()=> {
                 db.run(
-                    "insert into config (title,config,schedule,created_at,updated_at) values (?,?,?,datetime('now'),datetime('now'))", scrapingConfig.title,scrapingConfig.config,scrapingConfig.schedule
+                    "insert into config (title,config,schedule,url,email,created_at,updated_at) values (?,?,?,?,?,datetime('now'),datetime('now'))",
+                    scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email
                 );
             });
         }
-
+        // todo エラー処理
+        return true;
     }
 
     delete(id){
