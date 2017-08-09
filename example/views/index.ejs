@@ -6,7 +6,7 @@
             <thead>
             <tr>
                 <th width="50">id</th>
-                <th width="500">タイトル URL</th>
+                <th width="250">タイトル URL</th>
                 <th width="150">メール宛先</th>
                 <th width="150">実行スケジュール</th>
                 <th width="100"></th>
@@ -17,11 +17,19 @@
             <tr>
                 <td><a href="/edit/<%= value.id %>"><%= value.id %></a></td>
                 <td>
-                    <%= value.title %><br/>
-                    url : <%= value.url %>
+                    <p>タスク名:<%= value.title %></p>
+                    <p style="overflow-wrap: break-word;width: 350px;">url :<a href="<%= value.url %>" target="_blank"><%= value.url %></a></p>
                 </td>
                 <td><%= value.email %></td>
-                <td><%= value.schedule %></td>
+                <td>
+                    <% if (value.schedule === 'week'){ %>
+                    週毎
+                    <% } else if(value.schedule  === 'month') { %>
+                    月毎
+                    <% } else if(value.schedule  === 'day') { %>
+                    日毎
+                    <% } %>
+                </td>
                 <td>
                     <button type="button" class="alert button" v-on:click="remove(<%= value.id %>)">削除</button>
                 </td>

@@ -31,6 +31,12 @@ app.use(function (req,res,next) {
     next();
 });
 
+// schedule
+
+const month = 1;
+const week  = 2;
+const day   = 3;
+
 // メソッド
 function _croll(){
 

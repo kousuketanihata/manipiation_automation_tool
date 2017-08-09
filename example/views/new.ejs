@@ -138,7 +138,7 @@
 <% if (typeof config === 'undefined') {
     var config = '';
 }else{
-//    var scrapingConfig = config.config.split('\t');
+    var scrapingConfigs = config.config.split('\n');
 } %>
 
 <script type="text/javascript">
@@ -156,30 +156,14 @@
                 query : ''
             },
             configs : [
-            {
-                column: '検索ワード入力',
-                action : 'type',
-                query  : "form[action=\'/search\']",
-                input: "php求人"
-            },{
-                column: '検索ボタン押す',
-                action: 'click',
-                query: 'form[action*=\'/search\'] [type=submit]'
-            }
-            ,{
-                column: 'スクレイピング実行',
-                action: 'snatch',
-                query: '._NId h3 a'
-            }
-            ,{
-                column: 'ページ遷移',
-                action: 'click',
-                query: 'table#nav > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > a.fl:nth-child(1) > span.csb.ch:nth-child(1)'
-            },{
-                column: 'スクレイピング実行',
-                action: 'snatch',
-                query: '._NId h3 a'
-            }],
+                <% if (typeof config === 'undefined') { %>
+                    <% for (let config of scrapingConfigs){ %>
+                    {
+                    <%- config.replace(/\$/g,':"').replace(/\t/g,'",') %>"
+                    },
+                    <% } %>
+                <%}%>
+            ],
             selected: '',
             action_select_options : [
                 {label : 'クリックする',value:'click'},

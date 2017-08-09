@@ -21,10 +21,10 @@ class Sqlite{
 
         // タブ文字で結合する
         let saveConfig = scrapingConfig.config.map(function (data,index) {
-            return _joinObj(data,'=','/t');
+            return _joinObj(data,'$','\t');
         });
 
-        saveConfig = saveConfig.join('\s');
+        saveConfig = saveConfig.join('\n');
 
         let id = scrapingConfig.path.replace(/[^0-9^\.]/g,"");
         let db = this.connection();
@@ -74,6 +74,15 @@ class Sqlite{
                     callback(row);
                     db.close();
                 });
+            });
+        }
+    }
+
+    fetchBySchedule(id){
+        let db = this.connection();
+        return function (callback) {
+            db.serialize(()=>{
+
             });
         }
     }
