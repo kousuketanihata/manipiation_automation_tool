@@ -6,35 +6,34 @@
             <thead>
             <tr>
                 <th width="50">id</th>
-                <th width="250">タイトル URL</th>
+                <th width="250">タイトル <br> URL</th>
                 <th width="150">メール宛先</th>
                 <th width="150">実行スケジュール</th>
+                <th width="100">作成日</th>
+                <th width="100">更新日</th>
                 <th width="100"></th>
             </tr>
             </thead>
             <tbody>
-            <% configs.forEach((value,key)=>{ %>
-            <tr>
-                <td><a href="/edit/<%= value.id %>"><%= value.id %></a></td>
-                <td>
-                    <p>タスク名:<%= value.title %></p>
-                    <p style="overflow-wrap: break-word;width: 350px;">url :<a href="<%= value.url %>" target="_blank"><%= value.url %></a></p>
-                </td>
-                <td><%= value.email %></td>
-                <td>
-                    <% if (value.schedule === 'week'){ %>
-                    週毎
-                    <% } else if(value.schedule  === 'month') { %>
-                    月毎
-                    <% } else if(value.schedule  === 'day') { %>
-                    日毎
-                    <% } %>
-                </td>
-                <td>
-                    <button type="button" class="alert button" v-on:click="remove(<%= value.id %>)">削除</button>
-                </td>
-            </tr>
-            <% }) %>
+            <% for ( var i = 0 ; i < configs.length; i ++ ){%>
+                <tr>
+                    <td><a href="/edit/<%- configs[i].id %>"><%- configs[i].id %></a></td>
+                    <td><%- configs[i].title %> <br><%- configs[i].url %></td>
+                    <td><%- configs[i].email %></td>
+                    <% if (configs[i].schedule == master.schedule.month){%>
+                        <td>月毎</td>
+                    <% }else if(configs[i].schedule == master.schedule.week) {%>
+                        <td>週毎</td>
+                    <% } else if (configs[i].schedule == master.schedule.day){%>
+                        <td>日毎</td>
+                    <% }%>
+                    <td>
+                        <%- configs[i].created_at %>
+                    </td>
+                    <td><%- configs[i].updated_at %></td>
+                    <td><button v-on:click="remove(<%- configs[i].id %>)" class="alert button">削除</button></td>
+                </tr>
+            <% } %>
             </tbody>
         </table>
     </div>

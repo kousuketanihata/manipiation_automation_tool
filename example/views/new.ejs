@@ -28,9 +28,9 @@
                 <label for="right-label" class="text-left">クローリング頻度<span class="red" v-show="!validation.schedule">クローリング頻度は必ず選択して下さい</span></label>
             </div>
             <select v-model="schedule" class="select-action" >
-                <option value="month">一ヶ月に一回(月初)</option>
-                <option value="week">1週間に一回(毎週月曜の朝)</option>
-                <option value="day">1日に一回(毎日2時)</option>
+                <option value="1">一ヶ月に一回(月初)</option>
+                <option value="2">1週間に一回(毎週月曜の朝)</option>
+                <option value="3">1日に一回(毎日2時)</option>
             </select>
             </div>
         </div>
@@ -60,19 +60,18 @@
                     <select class="select-action" v-model="new_config.action">
                         <option value="click">クリックする</option>
                         <option value="check">チェックする</option>
-                        <option value="enter">入力する</option>
+                        <option value="type">入力する</option>
                         <option value="scraping">スクレイピングする</option>
                     </select>
                 </label>
             </div>
-
             <div class="flexible">
                 <label for="">query
                     <input type="text" v-model="new_config.query">
                 </label>
             </div>
 
-            <div class="flexible" v-if="new_config.action =='enter'">
+            <div class="flexible" v-if="new_config.action =='type'">
                 <label for="">入力内容
                     <input type="text" name="column[inputs][]" v-model="new_config.input">
                 </label>
@@ -140,7 +139,6 @@
 }else{
     var scrapingConfigs = config.config.split('\n');
 } %>
-
 <script type="text/javascript">
     let app = new Vue({
         el: '#app',
@@ -156,19 +154,22 @@
                 query : ''
             },
             configs : [
-                <% if (typeof config === 'undefined') { %>
-                    <% for (let config of scrapingConfigs){ %>
-                    {
-                    <%- config.replace(/\$/g,':"').replace(/\t/g,'",') %>"
-                    },
-                    <% } %>
-                <%}%>
+                <!--<% if (url !== 'new') { %>-->
+                    <!--<% for (let scrapingConfig of scrapingConfigs){ %>-->
+                    <!--{-->
+                    <!--<%- scrapingConfig.replace(/\$/g,':"').replace(/\t/g,'",') %>"-->
+                    <!--},-->
+                    <!--<% } %>-->
+                <!--<%}%>-->
+                {column:'aaaa',action:'type',query:"form[action='/search']",input:'看護師 求人 渋谷'},
+                {column:'クリック',action:'click',query:"form[action*='/search'] [type=submit]"},
+                {column :'スクレイピングする',action:'snatch',query:'._NId h3 a'}
             ],
             selected: '',
             action_select_options : [
                 {label : 'クリックする',value:'click'},
                 {label : 'チェックする',value:'check'},
-                {label : '入力する',value:'type'},
+                {label : '入力する',   value:'type'},
                 {label : 'スクレイピングする',value:'snatch'},
             ],
             isActive: false
@@ -213,8 +214,8 @@
                 };
             },
             //todo  直す
-            removeConfig : (config)=> {
-              this.configs
+            removeConfig : function(config) {
+              this.configs.splice(this.configs.indexOf(config),1)
             },
             send: function(){
 //                if (this.isValid) {

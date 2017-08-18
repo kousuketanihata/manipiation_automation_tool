@@ -2,10 +2,10 @@ const co = require('co');
 const fs = require('fs');
 const path = require('path');
 const flash = require('connect-flash');
+const expressValidator  = require("express-validator");
 const express = require('express');
 const session = require('express-session');
 const expressBatch = require("express-batch");
-const expressValidator  = require("express-validator");
 const bodyParser = require('body-parser');
 import Fool from '../index';
 import Sqlite from'./service/sqlite.js';
@@ -20,6 +20,7 @@ app.use(bodyParser.urlencoded({
     extended : true
     })
 );
+app.use(expressValidator());
 app.use(function (req, res, next) {
     res.locals.messages = require('express-messages')(req, res);
     next();
@@ -31,58 +32,43 @@ app.use(function (req,res,next) {
     next();
 });
 
+
+
 // schedule
-
-const month = 1;
-const week  = 2;
-const day   = 3;
-
-// メソッド
-function _croll(){
-
-}
-
-function _designConfig() {
-
-}
-
-app.get('/test',function (req,res) {
-    req.flash("info", "Email queued");
-});
+const master_config = {
+    schedule: {
+        month : 1,
+        week  : 2,
+        day   : 3,
+    }
+};
 
 //// webルーティング
-
 // 一覧ページ
 app.get('/',function (req,res) {
     let configs =  new Sqlite().fetchAll();
     configs((callback)=>{
         res.render('index',{
-            configs: callback
+            configs : callback,
+            master  : master_config
         })
     })
 });
 
 // 新規登録ページ
 app.get('/new',function(req,res) {
-    res.render('new',{});
+    res.render('new',{url:'new'});
 });
 
 // 編集ページ(新規登録ページと同じでおk)
 app.get('/edit/:id(\\d+)', function (req,res) {
     let configCallback = new Sqlite().fetchById(req.params.id);
     configCallback((callback)=>{
-        res.render('new',{config: callback})
+        res.render('new',{config: callback,url:'edit'})
     });
 });
 
-// 入力内容でスクレイピングして出力と一致していたら
-// app.get('/confirm',function (req,res) {
-//     res.render('confirm',{});
-//     console.dir(res,req);
-// });
-
 app.post('/crawl_site',function (req,res) {
-
     // クローラーのエンジン部分
     const fool = new Fool();
     let scraping_by_http = req.body;
@@ -104,6 +90,7 @@ app.post('/crawl_site',function (req,res) {
             scraping.push([scraping_by_http.config[i].action , scraping_by_http.config[i].query]);
         }
     }
+
     co(function* () {
         let results = [];
         results.push(
@@ -122,16 +109,33 @@ app.post('/crawl_site',function (req,res) {
 
 // クローリング処理を保存 渡されたオブジェクト全保存
 app.post('/save',function(req,res) {
-    let scrapingByHttp = req.body;
-    const sqlite = new Sqlite();
-    if (sqlite.save(scrapingByHttp)){
-        res.contentType("application/json");
-        res.status(200);
-        res.end(JSON.stringify({"message": "upload success"}));
-    }else {
-        // エラーの時の処理
-        res.status(500).send('something error');
-    }
+    // バリデーション
+    req.check('title','タイトル').notEmpty().isAlphanumeric();
+    req.check('url','url').notEmpty().isURL();
+    req.check('email','メール').notEmpty().isEmail();
+    req.check('schedule','スケジュール').notEmpty().isInt();
+    req.check('path','パス').notEmpty();
+    req.getValidationResult().then(function (result) {
+        // バリデーションエラーの個数が0以外の時
+        console.log(result.array())
+        if (result.array().length != 0 ){
+            console.log('バリデーションエラー')
+        }else{
+            let scrapingByHttp = req.body;
+            const sqlite = new Sqlite();
+            if (sqlite.save(scrapingByHttp)){
+                console.log('aaaaaaaaa')
+                res.contentType("application/json");
+                res.status(200);
+                res.end(JSON.stringify({"message": "upload success"}));
+            }else {
+                // エラーの時の処理
+                res.status(500).send('something error');
+            }
+        }
+    });
+    // ここまでバリデーション
+
 });
 
 app.post('/delete/:id', (req,res)=>{
@@ -147,29 +151,41 @@ app.post('/delete/:id', (req,res)=>{
     };
 })
 
-// apiルーティング
-// 月別のやつ
-app.get('/api/month',()=>{
 
-});
-
-// 週ごとのやつ
-app.get('/api/week',()=>{
-
-});
-
-// 日毎のやつ
-app.get('/api/day',()=>{
-
-});
 
 // apiで使う共通処理
-function _main(config) {
+let main  = function(configs) {
+    configs((callback)=>{
+        console.log(callback);
+    })
     // jsonに戻す処理
     // クローリング
+
     // csv出力
     // 宛先に送信
 }
 
-app.listen(9997,()=> {
+// apiルーティング
+// 月別のやつ
+// app.get('/api/month',()=>{
+//     const sqlite = new Sqlite();
+//     let configs =  sqlite.fetchBySchedule(month);
+//     console.log('aa');
+//     configs((callback)=>{
+//         console.log(callback);
+//     })
+//     // main(configs);
+// });
+//
+// // 週ごとのやつ
+// app.get('/api/week',()=>{
+//
+// });
+//
+// // 日毎のやつ
+// app.get('/api/day',()=>{
+//
+// });
+
+app.listen(9994,()=> {
 });
