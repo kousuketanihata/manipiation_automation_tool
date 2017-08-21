@@ -218,7 +218,8 @@
               this.configs.splice(this.configs.indexOf(config),1)
             },
             send: function(){
-//                if (this.isValid) {
+                // todo jsでのバリデーション
+                // if (this.isValid) {
                     // todo:二重送信防止
                     // this.isActive = true;
                     // 送信する値
@@ -230,6 +231,7 @@
                         email:this.email,
                         schedule : this.schedule,
                     }
+
                     $.post({
                         url: '/crawl_site',
                         data: validatedValues,

@@ -26,26 +26,27 @@ class Sqlite{
 
         saveConfig = saveConfig.join('\n');
         // location href から数値だけ取り出す
-        let id = scrapingConfig.path.replace(/[^0-9^\.]/g,"");
-        console.log(id);
         let db = this.connection();
+        scrapingConfig.config = scrapingConfig.config.join("\t");
+        console.log(scrapingConfig.config)
+        let id = scrapingConfig.path.replace(/[^0-9^\.]/g,"");
         // 更新処理の時
         if ( typeof( id ).length == 1 ){
-            console.log(typeof id);
             db.serialize(()=>{
-                db.run("update config set title = ?,config = ?, schedule = ?, url = ?,email = ?, updated_at = datetime('now')  where id = ?", scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email,id)
+                db.run("update config set title = ?,config_blob = ?, schedule = ?, url = ?,email = ?, updated_at = datetime('now')  where id = ?",
+                    scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email,id)
             })
-            db.close();
         }else{
             // 新規作成の時
-            console.log('新規作成')
             db.serialize(()=> {
-                db.run("insert into config (title,config,schedule,url,email,created_at,updated_at) values (?,?,?,?,?,datetime('now'),datetime('now'))", scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email);
+                db.run("insert into config (title,config_blob,schedule,url,email,created_at,updated_at) values (?,?,?,?,?,datetime('now'),datetime('now'))", scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email);
             });
-            db.close();
         }
-
-        // todo エラー処理
+        db.on('error', function (err) {
+            console.error(err);
+            process.exit(1);
+        });
+        db.close();
         return true;
     }
 
@@ -73,8 +74,8 @@ class Sqlite{
         let db = this.connection();
         return function (callback) {
             db.serialize( ()=>{
-                db.get('select * from config  where id =  ?' ,id , function (err,row) {
-                    callback(row);
+                db.get('select * from config  where id =  ?' ,id , function (err,rows) {
+                    callback(rows);
                     db.close();
                 });
             });
@@ -83,6 +84,7 @@ class Sqlite{
 
     fetchBySchedule(schedule_id){
         let db = this.connection();
+        console.log(schedule_id);
         return function (callback) {
             db.serialize(()=>{
                 db.all('select * from config where schedule = ?', schedule_id , function (err, allRows){

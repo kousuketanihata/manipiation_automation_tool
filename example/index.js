@@ -1,3 +1,4 @@
+const util = require('util')
 const co = require('co');
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +10,7 @@ const expressBatch = require("express-batch");
 const bodyParser = require('body-parser');
 import Fool from '../index';
 import Sqlite from'./service/sqlite.js';
+import Scraping from './service/scraping';
 
 let app = express();
 // エクスプレス初期設定
@@ -31,8 +33,6 @@ app.use(function (req,res,next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-
-
 
 // schedule
 const master_config = {
@@ -73,23 +73,7 @@ app.post('/crawl_site',function (req,res) {
     const fool = new Fool();
     let scraping_by_http = req.body;
     // json形式にデータ構造を変換する
-    let scraping = [
-        ["goto",scraping_by_http.url]
-    ];
-
-    for ( let i = 0; i < scraping_by_http.config.length;i++ ){
-        // 入力の時
-        if (scraping_by_http.config[i].action === 'type'){
-            scraping.push([scraping_by_http.config[i].action , scraping_by_http.config[i].query,scraping_by_http.config[i].input]);
-        // スクレイピングする時(表示されるまでwait入れる)
-        }else if(scraping_by_http.config[i].action === 'snatch'){
-            scraping.push(["wait", scraping_by_http.config[i].query]);
-            scraping.push([scraping_by_http.config[i].action , scraping_by_http.config[i].query,"innerText"]);
-        }else{
-            scraping.push(["wait", scraping_by_http.config[i].query]);
-            scraping.push([scraping_by_http.config[i].action , scraping_by_http.config[i].query]);
-        }
-    }
+    let scraping = new Scraping().parsePreprocess(scraping_by_http.config, scraping_by_http.url);
 
     co(function* () {
         let results = [];
@@ -100,11 +84,14 @@ app.post('/crawl_site',function (req,res) {
         fool.kill();
         return results;
     }).then(results => {
+        console.log(results)
         // 多重配列を一次元に直す もう少しいい感じにしたい
         let designedResults = Array.prototype.concat.apply([],results);
         designedResults = Array.prototype.concat.apply([],designedResults);
         res.end(JSON.stringify(designedResults));
-    });
+    }).catch(
+        // エラー処理
+    );
 });
 
 // クローリング処理を保存 渡されたオブジェクト全保存
@@ -117,14 +104,12 @@ app.post('/save',function(req,res) {
     req.check('path','パス').notEmpty();
     req.getValidationResult().then(function (result) {
         // バリデーションエラーの個数が0以外の時
-        console.log(result.array())
         if (result.array().length != 0 ){
             console.log('バリデーションエラー')
         }else{
             let scrapingByHttp = req.body;
             const sqlite = new Sqlite();
             if (sqlite.save(scrapingByHttp)){
-                console.log('aaaaaaaaa')
                 res.contentType("application/json");
                 res.status(200);
                 res.end(JSON.stringify({"message": "upload success"}));
@@ -134,8 +119,6 @@ app.post('/save',function(req,res) {
             }
         }
     });
-    // ここまでバリデーション
-
 });
 
 app.post('/delete/:id', (req,res)=>{
@@ -151,31 +134,62 @@ app.post('/delete/:id', (req,res)=>{
     };
 })
 
-
-
 // apiで使う共通処理
-let main  = function(configs) {
-    configs((callback)=>{
-        console.log(callback);
-    })
+let api_main = function(scrapingConfig) {
     // jsonに戻す処理
+    let userInputConfig = scrapingConfig.config.split('\n');
+    // { column: 'aaaa',
+    //     action: 'type',
+    //     query: 'form[action=\'/search\']',
+    //     input: '看護師 求人 渋谷' },
+    // { column: 'クリック',
+    //     action: 'click',
+    //     query: 'form[action*=\'/search\'] [type=submit]' },
+    // { column: 'スクレイピングする', action: 'snatch', query: '._NId h3 a' } ]
+    let scraping = [];
+    for (let i = 0 ; i <= userInputConfig.length -1;i++){
+        let configArray =  userInputConfig[i].split("\t");
+        // 一旦ハッシュを受ける
+        let tmp = {};
+        for (let i in configArray ){
+            let parseCharPlace = configArray[i].search("\\$");
+            tmp[configArray[i].slice(0,parseCharPlace)]= configArray[i].slice(parseCharPlace+1 ,configArray[i].length)
+        }
+        scraping.push(tmp);
+    }
     // クローリング
+    let parsedConfig = new Scraping().parsePreprocess(scraping,scrapingConfig.url)
+    console.log(parsedConfig)
+    const fool = new Fool();
+    co(function *() {
+        let results = [];
+        results.push(
+            yield  fool.travel({data :parsedConfig})
+        )
+        return results
+    }).then(results => {
+        // 多重配列を一次元に直す もう少しいい感じにしたい
+        let designedResults = Array.prototype.concat.apply([], results);
+        designedResults = Array.prototype.concat.apply([], designedResults);
+        console.log(designedResults);
+        // csv出力
 
-    // csv出力
-    // 宛先に送信
+        // 宛先に送信
+    })
 }
 
 // apiルーティング
-// 月別のやつ
-// app.get('/api/month',()=>{
-//     const sqlite = new Sqlite();
-//     let configs =  sqlite.fetchBySchedule(month);
-//     console.log('aa');
-//     configs((callback)=>{
-//         console.log(callback);
-//     })
-//     // main(configs);
-// });
+// 毎月実行されるやつ
+app.get('/api/month',(req,res)=>{
+    const sqlite = new Sqlite();
+    let configs =  sqlite.fetchBySchedule(master_config.schedule.month);
+    configs((callback)=>{
+        api_main(callback);
+    });
+    // todo 条件分岐
+    res.header('Access-Control-Allow-Origin','*');
+    res.json({message:'成功しました'});
+});
 //
 // // 週ごとのやつ
 // app.get('/api/week',()=>{
@@ -187,5 +201,5 @@ let main  = function(configs) {
 //
 // });
 
-app.listen(9994,()=> {
+app.listen(9993,()=> {
 });

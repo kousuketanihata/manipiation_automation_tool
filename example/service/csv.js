@@ -23,5 +23,5 @@ var scraping = {
     results: ['社名A','社名B']
 };
 a.csv_export(scraping);
-
 export default Csv
+
