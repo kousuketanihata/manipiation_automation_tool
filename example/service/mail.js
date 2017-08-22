@@ -1,6 +1,6 @@
 class Mail{
     sendMail(user){
-        let Email = require('email').Email;
+        let mailer = require('nodemailer');
         let myMessage = new Email({
             from: user.email,
             to: user.to,

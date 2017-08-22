@@ -159,7 +159,6 @@ let api_main = function(scrapingConfig) {
     }
     // クローリング
     let parsedConfig = new Scraping().parsePreprocess(scraping,scrapingConfig.url)
-    console.log(parsedConfig)
     const fool = new Fool();
     co(function *() {
         let results = [];
@@ -173,7 +172,6 @@ let api_main = function(scrapingConfig) {
         designedResults = Array.prototype.concat.apply([], designedResults);
         console.log(designedResults);
         // csv出力
-
         // 宛先に送信
     })
 }
