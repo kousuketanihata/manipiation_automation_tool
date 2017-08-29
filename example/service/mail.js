@@ -6,11 +6,11 @@ class Mail{
         let fs = require('fs');
         // todo  ファイルパス受け取るようにする
         // ファイル存在確認
-        try {
+        //try {
             fs.statSync(destination.filename);
-        } catch(err) {
-            console.log(err);
-        }
+        //} catch(err) {
+        //    console.log(err);
+        //}
 
         let content = new helper.Content('text/plain', destination.title + '調査結果');
         let fromEmail = new helper.Email(destination.emailFrom);
