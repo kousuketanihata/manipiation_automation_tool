@@ -6,7 +6,7 @@ class Sqlite{
     }
 
     save( scrapingConfig ){
-        // いい感じにしたい
+        // joinするために使うプライベートメソッド
         function _joinObj(obj, fDelimiter, sDelimiter) {
             let tmpArr = [];
             if (typeof obj === 'undefined') return '';
@@ -28,18 +28,17 @@ class Sqlite{
         // location href から数値だけ取り出す
         let db = this.connection();
         scrapingConfig.config = scrapingConfig.config.join("\t");
-        console.log(scrapingConfig.config)
-        let id = scrapingConfig.path.replace(/[^0-9^\.]/g,"");
         // 更新処理の時
-        if ( typeof( id ).length == 1 ){
+        if ( scrapingConfig.path !== '/new' ){
+            let id = scrapingConfig.path.replace(/[^0-9^\.]/g,"");
             db.serialize(()=>{
-                db.run("update config set title = ?,config_blob = ?, schedule = ?, url = ?,email = ?, updated_at = datetime('now')  where id = ?",
+                db.run("update config set title = ?,config = ?, schedule = ?, url = ?,email = ?, updated_at = datetime('now')  where id = ?",
                     scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email,id)
             })
         }else{
             // 新規作成の時
             db.serialize(()=> {
-                db.run("insert into config (title,config_blob,schedule,url,email,created_at,updated_at) values (?,?,?,?,?,datetime('now'),datetime('now'))", scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email);
+                db.run("insert into config (title,config,schedule,url,email,created_at,updated_at) values (?,?,?,?,?,datetime('now'),datetime('now'))", scrapingConfig.title,saveConfig,scrapingConfig.schedule,scrapingConfig.url,scrapingConfig.email);
             });
         }
         db.on('error', function (err) {

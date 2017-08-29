@@ -1,15 +1,15 @@
-const util = require('util')
+// 公式ライブラリー
 const co = require('co');
-const fs = require('fs');
-const path = require('path');
-const flash = require('connect-flash');
 const expressValidator  = require("express-validator");
 const express = require('express');
-const session = require('express-session');
 const expressBatch = require("express-batch");
 const bodyParser = require('body-parser');
+
+// 自作ライブラリー(service以下に設置)
+import Csv from "./service/csv";
 import Fool from '../index';
 import Sqlite from'./service/sqlite.js';
+import Mail from './service/mail.js'
 import Scraping from './service/scraping';
 
 let app = express();
@@ -35,7 +35,7 @@ app.use(function (req,res,next) {
 });
 
 // schedule
-const master_config = {
+const masterConfig = {
     schedule: {
         month : 1,
         week  : 2,
@@ -50,7 +50,7 @@ app.get('/',function (req,res) {
     configs((callback)=>{
         res.render('index',{
             configs : callback,
-            master  : master_config
+            master  : masterConfig
         })
     })
 });
@@ -97,7 +97,7 @@ app.post('/crawl_site',function (req,res) {
 // クローリング処理を保存 渡されたオブジェクト全保存
 app.post('/save',function(req,res) {
     // バリデーション
-    req.check('title','タイトル').notEmpty().isAlphanumeric();
+    req.check('title','タイトル').notEmpty();
     req.check('url','url').notEmpty().isURL();
     req.check('email','メール').notEmpty().isEmail();
     req.check('schedule','スケジュール').notEmpty().isInt();
@@ -105,7 +105,7 @@ app.post('/save',function(req,res) {
     req.getValidationResult().then(function (result) {
         // バリデーションエラーの個数が0以外の時
         if (result.array().length != 0 ){
-            console.log('バリデーションエラー')
+            console.log(result.array());
         }else{
             let scrapingByHttp = req.body;
             const sqlite = new Sqlite();
@@ -135,17 +135,10 @@ app.post('/delete/:id', (req,res)=>{
 })
 
 // apiで使う共通処理
-let api_main = function(scrapingConfig) {
+let apiMain = function(scrapingConfig) {
     // jsonに戻す処理
     let userInputConfig = scrapingConfig.config.split('\n');
-    // { column: 'aaaa',
-    //     action: 'type',
-    //     query: 'form[action=\'/search\']',
-    //     input: '看護師 求人 渋谷' },
-    // { column: 'クリック',
-    //     action: 'click',
-    //     query: 'form[action*=\'/search\'] [type=submit]' },
-    // { column: 'スクレイピングする', action: 'snatch', query: '._NId h3 a' } ]
+
     let scraping = [];
     for (let i = 0 ; i <= userInputConfig.length -1;i++){
         let configArray =  userInputConfig[i].split("\t");
@@ -172,7 +165,20 @@ let api_main = function(scrapingConfig) {
         designedResults = Array.prototype.concat.apply([], designedResults);
         console.log(designedResults);
         // csv出力
+        let csv = new Csv();
+        let fileTitle = csv.csvExport({
+            url: scrapingConfig.url,
+            title : scrapingConfig.title,
+            results: designedResults,
+        });
         // 宛先に送信
+        let mail = new Mail();
+        mail.sendMail({
+            filename:fileTitle,
+            emailTo : scrapingConfig.email,
+            emailFrom:'kosuke.tanihata@leverages.jp',
+            title: scrapingConfig.title,
+        });
     })
 }
 
@@ -180,9 +186,9 @@ let api_main = function(scrapingConfig) {
 // 毎月実行されるやつ
 app.get('/api/month',(req,res)=>{
     const sqlite = new Sqlite();
-    let configs =  sqlite.fetchBySchedule(master_config.schedule.month);
+    let configs =  sqlite.fetchBySchedule(masterConfig.schedule.month);
     configs((callback)=>{
-        api_main(callback);
+        apiMain(callback);
     });
     // todo 条件分岐
     res.header('Access-Control-Allow-Origin','*');
@@ -190,14 +196,17 @@ app.get('/api/month',(req,res)=>{
 });
 //
 // // 週ごとのやつ
-// app.get('/api/week',()=>{
-//
-// });
-//
-// // 日毎のやつ
-// app.get('/api/day',()=>{
-//
-// });
+app.get('/api/week',()=>{
+    const sqlite = new Sqlite();
+    let configs = sqlite.fetchBySchedule(masterConfig.schedule.week)
+});
 
-app.listen(9993,()=> {
+// 日毎のやつ
+app.get('/api/day',()=>{
+    const sqlite = new Sqlite();
+    let configs = sqlite.fetchBySchedule(masterConfig.schedule.day)
+
+});
+
+app.listen(9986,()=> {
 });

@@ -1,6 +1,5 @@
 class Scraping {
     parsePreprocess(initial_config,url){
-        console.log(initial_config,url);
         let scraping = [
             ["goto",url]
         ];
