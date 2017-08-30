@@ -1,283 +1,282 @@
 <%- include('layout_header') %>
 <div id="app">
-    <form method="post">
-        <div class="flexbox">
-            <div class="row flexible">
-                <div class="small-3 columns">
-                    <label for="right-label" class="text-left">クローリング内容 <span class="red" v-show="!validation.title">タイトルは必ず入力して下さい</span> </label>
-                </div>
-                <div class="small-9 columns">
-                    <input id="right-label" type="text" v-model="title" placeholder="メディカル競合分析クローリング"/>
-                </div>
-            </div>
+  <form method="post">
+    <div class="flexbox">
+      <div class="row flexible">
+        <div class="small-3 columns">
+          <label for="right-label" class="text-left">クローリング内容 <span class="red" v-show="!validation.title">タイトルは必ず入力して下さい</span>
+          </label>
         </div>
-        <% /* url入力欄 */ %>
-        <div class="flexbox">
-            <div class="row flexible">
-                <div class="small-3 columns">
-                    <label for="right-label" class="text-left">URL <span class="red" v-show="!validation.url">URLは必ずURL形式で入力して下さい</span></label>
-                </div>
-                <div class="small-9 columns">
-                    <input id="right-label" type="text" v-model="url" placeholder="https://www.google.co.jp/"/>
-                </div>
-            </div>
+        <div class="small-9 columns">
+          <input id="right-label" type="text" v-model="title" placeholder="メディカル競合分析クローリング"/>
         </div>
-        <div class="flexbox">
-            <div class="row flexible">
-            <div class="small-3 columns">
-                <label for="right-label" class="text-left">クローリング頻度<span class="red" v-show="!validation.schedule">クローリング頻度は必ず選択して下さい</span></label>
-            </div>
-            <select v-model="schedule" class="select-action" >
-                <option value="1">一ヶ月に一回(月初)</option>
-                <option value="2">1週間に一回(毎週月曜の朝)</option>
-                <option value="3">1日に一回(毎日2時)</option>
-            </select>
-            </div>
+      </div>
+    </div>
+    <% /* url入力欄 */ %>
+    <div class="flexbox">
+      <div class="row flexible">
+        <div class="small-3 columns">
+          <label for="right-label" class="text-left">URL <span class="red"
+                                                               v-show="!validation.url">URLは必ずURL形式で入力して下さい</span></label>
         </div>
-        <div class="flexbox">
-            <div class="row flexible">
-                <div class="small-3 columns">
-                    <label for="right-label" class="text-left">クローリング結果送信先<span class="red" v-show="!validation.email">クローリング結果送信先は必ずemail形式で入力して下さい</span></label>
-                </div>
-                <div class="small-9 columns">
-                    <input id="right-label" type="email" placeholder="daredare@leverages.jp" v-model="email"/>
-                </div>
-            </div>
+        <div class="small-9 columns">
+          <input id="right-label" type="text" v-model="url" placeholder="https://www.google.co.jp/"/>
         </div>
+      </div>
+    </div>
+    <div class="flexbox">
+      <div class="row flexible">
+        <div class="small-3 columns">
+          <label for="right-label" class="text-left">クローリング頻度<span class="red" v-show="!validation.schedule">クローリング頻度は必ず選択して下さい</span></label>
+        </div>
+        <select v-model="schedule" class="select-action">
+          <option value="1">一ヶ月に一回(月初)</option>
+          <option value="2">1週間に一回(毎週月曜の朝)</option>
+          <option value="3">1日に一回(毎日2時)</option>
+        </select>
+      </div>
+    </div>
+    <div class="flexbox">
+      <div class="row flexible">
+        <div class="small-3 columns">
+          <label for="right-label" class="text-left">クローリング結果送信先<span class="red" v-show="!validation.email">クローリング結果送信先は必ずemail形式で入力して下さい</span></label>
+        </div>
+        <div class="small-9 columns">
+          <input id="right-label" type="email" placeholder="daredare@leverages.jp" v-model="email"/>
+        </div>
+      </div>
+    </div>
 
-        <% /* 入力欄ここまで */ %>
-        <hr/>
-        <p class="red">項目は全て入力して下さい。</p>
-        <% /* 項目入力欄 */ %>
-        <div class="flexbox">
-            <div class="fixed ">
-                <label for="">項目名
-                    <input type="text" v-model="new_config.column">
-                </label>
-            </div>
-            <div class="fixed">
-                <label for="">動作
-                    <select class="select-action" v-model="new_config.action">
-                        <option value="click">クリックする</option>
-                        <option value="check">チェックする</option>
-                        <option value="type">入力する</option>
-                        <option value="scraping">スクレイピングする</option>
-                    </select>
-                </label>
-            </div>
-            <div class="flexible">
-                <label for="">query
-                    <input type="text" v-model="new_config.query">
-                </label>
-            </div>
+    <% /* 入力欄ここまで */ %>
+    <hr/>
+    <p class="red">項目は全て入力して下さい。</p>
+    <% /* 項目入力欄 */ %>
+    <div class="flexbox">
+      <div class="fixed ">
+        <label for="">項目名
+          <input type="text" v-model="new_config.column">
+        </label>
+      </div>
+      <div class="fixed">
+        <label for="">動作
+          <select class="select-action" v-model="new_config.action">
+            <option value="click">クリックする</option>
+            <option value="check">チェックする</option>
+            <option value="type">入力する</option>
+            <option value="scraping">スクレイピングする</option>
+          </select>
+        </label>
+      </div>
+      <div class="flexible">
+        <label for="">query
+          <input type="text" v-model="new_config.query">
+        </label>
+      </div>
 
-            <div class="flexible" v-if="new_config.action =='type'">
-                <label for="">入力内容
-                    <input type="text" name="column[inputs][]" v-model="new_config.input">
-                </label>
-            </div>
-            <div>
-                <a class="button success top-margin-24" v-on:click="add(new_config)">追加</a>
-            </div>
-        </div>
-        <% /* 項目入力欄ここまで */ %>
-        <p> 下に追加されたデータでクローリングが実行されます。</p>
-        <hr/>
-        <% /* ループして表示するための所 */ %>
-        <div class="flexbox" v-for="config in configs">
-            <div class="fixed ">
-                <label for="">項目名
-                    <input type="text" name="column[name][]" v-model="config.column">
-                </label>
-            </div>
-            <div class="fixed">
-                <label for="">動作
-                     <select name="column[actions][]" class="select-action">
-                         <option v-for="action in action_select_options" value="{{ action.value }}" v-bind:selected="action.value == config.action ">
-                             {{ action.label}}
-                         </option>
-                    </select>
-                </label>
-            </div>
-            <div class="flexible query">
-                <label for="">query
-                    <input type="text" name="column[query][]" v-model="config.query" >
-                </label>
-            </div>
-            <div class="flexible query" v-if="config.action.indexOf('type') !== -1 ">
-                <label for="">入力内容
-                    <input type="text" name="column[input][]" v-model="config.input" >
-                </label>
-            </div>
-            <div>
-                <a class="alert button top-margin-24" v-on:click="removeConfig(config)">削除</a>
-            </div>
-        </div>
-        <% /* ループして表示するための所ここまで */ %>
-        <!--<button class="button expanded secondary" v-on:click="prevent_double_send()" v-bind:disabled="isActive">スクレイピングを実行する</button>-->
-        <a class="button expanded secondary" v-on:click="send()">スクレイピングを実行する</a>
-    </form>
+      <div class="flexible" v-if="new_config.action =='type'">
+        <label for="">入力内容
+          <input type="text" name="column[inputs][]" v-model="new_config.input">
+        </label>
+      </div>
+      <div>
+        <a class="button success top-margin-24" v-on:click="add(new_config)">追加</a>
+      </div>
+    </div>
+    <% /* 項目入力欄ここまで */ %>
+    <p> 下に追加されたデータでクローリングが実行されます。</p>
+    <hr/>
+    <% /* ループして表示するための所 */ %>
+    <div class="flexbox" v-for="config in configs">
+      <div class="fixed ">
+        <label for="">項目名
+          <input type="text" name="column[name][]" v-model="config.column">
+        </label>
+      </div>
+      <div class="fixed">
+        <label for="">動作
+          <select name="column[actions][]" class="select-action">
+            <option v-for="action in action_select_options" value="{{ action.value }}"
+                    v-bind:selected="action.value == config.action ">
+              {{ action.label}}
+            </option>
+          </select>
+        </label>
+      </div>
+      <div class="flexible query">
+        <label for="">query
+          <input type="text" name="column[query][]" v-model="config.query">
+        </label>
+      </div>
+      <div class="flexible query" v-if="config.action.indexOf('type') !== -1 ">
+        <label for="">入力内容
+          <input type="text" name="column[input][]" v-model="config.input">
+        </label>
+      </div>
+      <div>
+        <a class="alert button top-margin-24" v-on:click="removeConfig(config)">削除</a>
+      </div>
+    </div>
+    <% /* ループして表示するための所ここまで */ %>
+    <!--<button class="button expanded secondary" v-on:click="prevent_double_send()" v-bind:disabled="isActive">スクレイピングを実行する</button>-->
+    <a class="button expanded secondary" v-on:click="send()">スクレイピングを実行する</a>
+  </form>
 </div>
 <% /* モーダルの中身 */ %>
 <div class="remodal-bg"></div>
 <div class="remodal" data-remodal-id="modal">
-    <button data-remodal-action="close" class="remodal-close"></button>
-    <h3>クローリング結果</h3>
-        <table>
-            <tbody class='j-append-result'>
-            </tbody>
-        </table>
-    <br>
-    <button data-remodal-action="cancel"  class="remodal-cancel">修正する</button>
-    <button data-remodal-action="confirm" v-on:click="save" class="remodal-confirm">保存する</button>
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h3>クローリング結果</h3>
+  <table>
+    <tbody class='j-append-result'>
+    </tbody>
+  </table>
+  <br>
+  <button data-remodal-action="cancel" class="remodal-cancel">修正する</button>
+  <button data-remodal-action="confirm" v-on:click="save" class="remodal-confirm">保存する</button>
 </div>
 <% /* モーダルの中身ここまで */ %>
-
 <%- include('layout_footer') %>
 <% if (typeof config === 'undefined') {
-    var config = '';
-}else{
-    var scrapingConfigs = config.config.split('\n');
+  var config = '';
+} else {
+  var scrapingConfigs = config.config.split('\n');
 } %>
 <script type="text/javascript">
-    let app = new Vue({
-        el: '#app',
-        data : {
-            title : '<%= config.title %>',
-            url : '<%= config.url %>',
-            email :'<%= config.email %>',
-            schedule : '<%= config.schedule %>',
-            new_config : {
-                column: '',
-                action : '',
-                input : '',
-                query : ''
-            },
-            configs : [
-                <!--<% if (url !== 'new') { %>-->
-                    <!--<% for (let scrapingConfig of scrapingConfigs){ %>-->
-                    <!--{-->
-                    <!--<%- scrapingConfig.replace(/\$/g,':"').replace(/\t/g,'",') %>"-->
-                    <!--},-->
-                    <!--<% } %>-->
-                <!--<%}%>-->
-                {column:'aaaa',action:'type',query:"form[action='/search']",input:'看護師 求人 渋谷'},
-                {column:'クリック',action:'click',query:"form[action*='/search'] [type=submit]"},
-                {column :'スクレイピングする',action:'snatch',query:'._NId h3 a'}
-            ],
-            selected: '',
-            action_select_options : [
-                {label : 'クリックする',value:'click'},
-                {label : 'チェックする',value:'check'},
-                {label : '入力する',   value:'type'},
-                {label : 'スクレイピングする',value:'snatch'},
-            ],
-            isActive: false
+  let app = new Vue({
+    el: '#app',
+    data: {
+      title: '<%= config.title %>',
+      url: '<%= config.url %>',
+      email: '<%= config.email %>',
+      schedule: '<%= config.schedule %>',
+      new_config: {
+        column: '',
+        action: '',
+        input: '',
+        query: ''
+      },
+      configs: [
+        <% if (url !== 'new') { %>
+        <% for (let scrapingConfig of scrapingConfigs){ %>
+        {
+          <%- scrapingConfig.replace(/\$/g, ':"').replace(/\t/g, '",') %>"
         },
-        computed :{
-            validation : function(){
-                let emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                let urlRE = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+        <% } %>
+        <% } %>
+      ],
+      selected: '',
+      action_select_options: [
+        {label: 'クリックする', value: 'click'},
+        {label: 'チェックする', value: 'check'},
+        {label: '入力する', value: 'type'},
+        {label: 'スクレイピングする', value: 'snatch'},
+      ],
+      isActive: false
+    },
+    computed: {
+      validation: function () {
+        let emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        let urlRE = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
 
-                return {
-                    title : !!this.title.trim(),
-                    url : urlRE.test(this.url),
-                    email: emailRE.test(this.email),
-                    schedule : !!this.schedule.trim(),
-                }
-            },
-            isValid : function() {
-                let validation = this.validation
-                    return Object.keys(validation).every(function (key) {
-                        return validation[key]
-                    })
-                }
-        },
-        methods: {
-            add: function() {
-                // validation 値に空のモノがあったら入れられないようにする
-                if (this.new_config.action === '' || this.new_config.column === ''  || this.new_config.query === '') {
-                    return;
-                    //  動作が入力を選択されている場合
-                    if (this.new_config.action === 'enter'){
-                        if (this.new_config.input === ''){
-                            return;
-                        }
-                    }
-                }
-                this.configs.push(this.new_config);
-                this.new_config = {
-                    action: '',
-                    column: '',
-                    input : '',
-                    query : ''
-                };
-            },
-            //todo  直す
-            removeConfig : function(config) {
-              this.configs.splice(this.configs.indexOf(config),1)
-            },
-            send: function(){
-                // todo jsでのバリデーション
-                // if (this.isValid) {
-                    // todo:二重送信防止
-                    // this.isActive = true;
-                    // 送信する値
-                    let validatedValues = {
-                        url: this.url,
-                        path : location.pathname,
-                        config: this.configs,
-                        title : this.title,
-                        email:this.email,
-                        schedule : this.schedule,
-                    }
-
-                    $.post({
-                        url: '/crawl_site',
-                        data: validatedValues,
-                        dataType: 'json'
-                    }).done(function (results) {
-                        let designedResults = results.map((result) => {
-                            return ('<tr><td>' + result + '</td></tr>');
-                        });
-                        // モーダルの中を初期化する
-                        $('.j-append-result').empty();
-                        $('.j-append-result').append(designedResults.join());
-                        // modalの中身を取得したデータに書き換える
-                        let modal = $('[data-remodal-id=modal]').remodal();
-                        modal.open();
-                        // todo:二重送信防止はずす
-                        // this.isActive = false;
-                        // vue jsでイベント取れなかったので苦肉の策
-                        $(document).on('confirmation', '.remodal', function() {
-                        // 保存処理
-                        $.post({
-                            url  : '/save',
-                            data : validatedValues,
-                            dataType : 'json'
-                        }).done(
-                            location.href = '/'
-                        ).fail(function (jqXHR,textStatus,errorThrow) {
-                            console.log(jqXHR,textStatus,errorThrow);
-                        });
-                    });
-                    }).fail(function (error) {
-                        console.log(error);
-                    });
-//                }
-            },
+        return {
+          title: !!this.title.trim(),
+          url: urlRE.test(this.url),
+          email: emailRE.test(this.email),
+          schedule: !!this.schedule.trim(),
         }
-    });
-
-    // vueで書きたい
-    $(function(){
-        $("input"). keydown(function(e) {
-            if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
-                return false;
-            } else {
-                return true;
+      },
+      isValid: function () {
+        let validation = this.validation
+        return Object.keys(validation).every(function (key) {
+          return validation[key]
+        })
+      }
+    },
+    methods: {
+      add: function () {
+        // validation 値に空のモノがあったら入れられないようにする
+        if (this.new_config.action === '' || this.new_config.column === '' || this.new_config.query === '') {
+          return;
+          //  動作が入力を選択されている場合
+          if (this.new_config.action === 'enter') {
+            if (this.new_config.input === '') {
+              return;
             }
-        });
+          }
+        }
+        this.configs.push(this.new_config);
+        this.new_config = {
+          action: '',
+          column: '',
+          input: '',
+          query: ''
+        };
+      },
+      //todo  直す
+      removeConfig: function (config) {
+        this.configs.splice(this.configs.indexOf(config), 1)
+      },
+      send: function () {
+        // todo jsでのバリデーション
+        if (this.isValid) {
+          // todo:二重送信防止
+          // this.isActive = true;
+          // 送信する値
+          let validatedValues = {
+            url: this.url,
+            path: location.pathname,
+            config: this.configs,
+            title: this.title,
+            email: this.email,
+            schedule: this.schedule,
+          }
+
+          $.post({
+            url: '/crawl_site',
+            data: validatedValues,
+            dataType: 'json'
+          }).done(function (results) {
+            let designedResults = results.map((result) => {
+              return ('<tr><td>' + result + '</td></tr>');
+            });
+            // モーダルの中を初期化する
+            $('.j-append-result').empty();
+            $('.j-append-result').append(designedResults.join());
+            // modalの中身を取得したデータに書き換える
+            let modal = $('[data-remodal-id=modal]').remodal();
+            modal.open();
+            // todo:二重送信防止はずす
+            // this.isActive = false;
+            // vue jsでイベント取れなかったので苦肉の策
+            $(document).on('confirmation', '.remodal', function () {
+              // 保存処理
+              $.post({
+                url: '/save',
+                data: validatedValues,
+                dataType: 'json'
+              }).done(
+                location.href = '/'
+              ).fail(function (jqXHR, textStatus, errorThrow) {
+                console.log(jqXHR, textStatus, errorThrow);
+              });
+            });
+          }).fail(function (error) {
+            console.log(error);
+          });
+        }
+      },
+    }
+  });
+
+  // vueで書きたい
+  $(function () {
+    $("input").keydown(function (e) {
+      if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
+        return false;
+      } else {
+        return true;
+      }
     });
+  });
 </script>
 </html>
