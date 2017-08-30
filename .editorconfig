@@ -1,37 +1,26 @@
+[*]
+charset=utf-8
+end_of_line=lf
+insert_final_newline=false
+indent_style=space
+indent_size=4
+trim_trailing_whitespace = true
+
+[{.eslintrc,.babelrc,.stylelintrc,jest.config,*.json,*.jsb3,*.jsb2,*.bowerrc}]
+indent_style=space
+indent_size=2
+
+[*.scss]
+indent_style=space
+indent_size=2
+
+[{.analysis_options,*.yml,*.yaml}]
+indent_style=space
+indent_size=2
+
+# http://editorconfig.org
 root = true
 
-[*]
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-[vcbuild.bat]
-end_of_line = crlf
-
-[{lib,src,test}/**.js]
-indent_style = space
+[{*.js,*.json,*.yml,*ejs}]
 indent_size = 2
-
-[src/**.{h,cc}]
 indent_style = space
-indent_size = 2
-
-
-[configure]
-indent_style = space
-indent_size = 2
-
-[Makefile]
-indent_style = tab
-indent_size = 8
-
-[{deps,tools}/**]
-indent_style = ignore
-indent_size = ignore
-end_of_line = ignore
-trim_trailing_whitespace = ignore
-charset = ignore
-
-[{test/fixtures,deps,tools/eslint,tools/gyp,tools/icu,tools/msvs}/**]
-insert_final_newline = false

@@ -4,5 +4,5 @@ npm-debug.log
 .idea/*
 *.sqlite3
 *.csv
-*.xlsx
+//*.xlsx
 .env

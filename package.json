@@ -29,6 +29,7 @@
     "express-validator": "^3.2.1",
     "fs": "0.0.1-security",
     "install": "^0.10.1",
+    "log4js": "^2.3.3",
     "nightmare": "^2.9.0",
     "node-pre-gyp": "^0.6.36",
     "officegen": "^0.4.5",
