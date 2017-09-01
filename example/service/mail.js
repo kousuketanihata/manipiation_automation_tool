@@ -55,6 +55,7 @@ class Mail {
     let content = new helper.Content('text/plain', destination.title + "を調査した結果以下のエラーが発生しています\n" + destination.error);
     let mail = new helper.Mail(fromEmail, subject, toEmail, content);
     let sendgrid = require('sendgrid')(process.env.SENDGRID_API);
+
     let request = sendgrid.emptyRequest({
       method: "POST",
       path: "/v3/mail/send",

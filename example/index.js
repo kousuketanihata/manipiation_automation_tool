@@ -139,11 +139,12 @@ app.post('/save', function (req, res) {
 let apiMain = function (scrapingConfig) {
 
   // スクレイピングがエラーだった時に呼ばれる処理
-  let onError = function (conf) {
+  let onError = function (error) {
     let mail = new Mail();
     mail.sendErrorMail({
       emailTo:scrapingConfig.email,
-      title:scrapingConfig.title
+      title:scrapingConfig.title,
+      error:error
     });
   };
 
@@ -194,9 +195,10 @@ let apiMain = function (scrapingConfig) {
         title: scrapingConfig.title,
       });
     }, 500)
-  }).catch(
-    onError
-  )
+  },function (err) {
+    console.log(err);
+    onError(err);
+  })
 };
 
 // 以下バッチが叩くapiのルーティング
