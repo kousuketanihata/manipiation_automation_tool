@@ -137,6 +137,16 @@ app.post('/save', function (req, res) {
 
 // apiで使う共通処理
 let apiMain = function (scrapingConfig) {
+
+  let onError = function (conf) {
+    console.log('クローリングがエラーだ 辛い');
+    let mail = new Mail();
+    mail.sendErrorMail({
+      emailTo:scrapingConfig.email,
+      title:scrapingConfig.title
+    });
+  };
+
   // jsonに戻す処理
   let userInputConfig = scrapingConfig.config.split('\n');
 
@@ -156,20 +166,9 @@ let apiMain = function (scrapingConfig) {
   const fool = new Fool();
   co(function* () {
     let results = [];
-    try {
       results.push(
         yield  fool.travel({data: parsedConfig})
       );
-    } catch (e) {
-      console.log(e)
-      // エラーがあった時はメールを送信
-      let mail = new Mail();
-      mail.sendMail({
-        isScrapingSuccess:false,
-        emailTo:scrapingConfig.email,
-        emailFrom:
-      })
-    }
     return results
   }).then(results => {
     // 多重配列を一次元に直す もう少しいい感じにしたい
@@ -183,7 +182,6 @@ let apiMain = function (scrapingConfig) {
       title: scrapingConfig.title,
       results: designedResults,
     });
-
     // ファイル出力を待つ必要がある
     setTimeout(() => {
       // 宛先に送信
@@ -191,15 +189,14 @@ let apiMain = function (scrapingConfig) {
       mail.sendMail({
         filename: fileTitle,
         isScrapingSuccess: true,
-        emailTo:
-        scrapingConfig.email,
+        emailTo: scrapingConfig.email,
         // todo 松原さんにもらったアドレスに変える
-        title:
-        scrapingConfig.title,
-      })
-      ;
+        title: scrapingConfig.title,
+      });
     }, 500)
-  })
+  }).catch(
+    onError
+  )
 };
 
 // apiルーティング
@@ -236,5 +233,5 @@ app.get('/api/day', () => {
   res.json({message: '通信に成功しました'});
 });
 
-app.listen(9998, () => {
+app.listen(9988, () => {
 });
