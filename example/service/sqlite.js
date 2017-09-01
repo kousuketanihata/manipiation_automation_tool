@@ -17,7 +17,7 @@ class Sqlite {
         tmpArr.push(key + fDelimiter + obj[key]);
       }
       return tmpArr.join(sDelimiter);
-    };
+    }
 
     // タブ文字で結合する
     let saveConfig = scrapingConfig.config.map(function (data, index) {
@@ -25,11 +25,11 @@ class Sqlite {
     });
 
     saveConfig = saveConfig.join('\n');
-    // location href から数値だけ取り出す
     let db = this.connection();
     scrapingConfig.config = scrapingConfig.config.join("\t");
     // 更新処理の時
     if (scrapingConfig.path !== '/new') {
+      // location href から数値だけ取り出す
       let id = scrapingConfig.path.replace(/[^0-9^\.]/g, "");
       db.serialize(() => {
         db.run("update config set title = ?,config = ?, schedule = ?, url = ?,email = ?, updated_at = datetime('now')  where id = ?",
@@ -49,11 +49,12 @@ class Sqlite {
     return true;
   }
 
-  delete(id) {
+  deleteConfig(id) {
     let db = this.connection();
     db.serialize(() => {
       db.run("delete from config where id = ?", id);
     })
+
   }
 
   fetchAll() {
@@ -90,7 +91,7 @@ class Sqlite {
           if (err != null) throw  err;
           allRows.forEach(function (row) {
             callback(row)
-          })
+          });
           db.close();
         });
       });

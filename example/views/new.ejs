@@ -212,7 +212,6 @@
           query: ''
         };
       },
-      //todo  直す
       removeConfig: function (config) {
         this.configs.splice(this.configs.indexOf(config), 1)
       },
@@ -230,36 +229,45 @@
             email: this.email,
             schedule: this.schedule,
           }
-
           $.post({
             url: '/crawl_site',
             data: validatedValues,
             dataType: 'json'
-          }).done(function (results) {
-            let designedResults = results.map((result) => {
-              return ('<tr><td>' + result + '</td></tr>');
-            });
-            // モーダルの中を初期化する
-            $('.j-append-result').empty();
-            $('.j-append-result').append(designedResults.join());
-            // modalの中身を取得したデータに書き換える
-            let modal = $('[data-remodal-id=modal]').remodal();
-            modal.open();
-            // todo:二重送信防止はずす
-            // this.isActive = false;
-            // vue jsでイベント取れなかったので苦肉の策
-            $(document).on('confirmation', '.remodal', function () {
-              // 保存処理
-              $.post({
-                url: '/save',
-                data: validatedValues,
-                dataType: 'json'
-              }).done(
-                location.href = '/'
-              ).fail(function (jqXHR, textStatus, errorThrow) {
-                console.log(jqXHR, textStatus, errorThrow);
+          }).done(function (msg) {
+            // スクレイピングに失敗した時のメッセージ
+            if (!msg.success) {
+              // モーダル初期化
+              $('.j-append-result').empty();
+              $('.j-append-result').append('記述内容にエラーがあります:<br>'+msg.result);
+              let modal = $('[data-remodal-id=modal]').remodal();
+              modal.open();
+            } else {
+              // 成功した時の処理
+              let designedResults = msg.result.map((result) => {
+                return ('<tr><td>' + result + '</td></tr>');
               });
-            });
+              // モーダルの中を初期化する
+              $('.j-append-result').empty();
+              $('.j-append-result').append(designedResults.join());
+              // modalの中身を取得したデータに書き換える
+              let modal = $('[data-remodal-id=modal]').remodal();
+              modal.open();
+              // todo:二重送信防止はずす
+              // this.isActive = false;
+              // vue jsでイベント取れなかったので苦肉の策
+              $(document).on('confirmation', '.remodal', function () {
+                // 保存処理
+                $.post({
+                  url: '/save',
+                  data: validatedValues,
+                  dataType: 'json'
+                }).done(
+                  location.href = '/'
+                ).fail(function (jqXHR, textStatus, errorThrow) {
+                  console.log(jqXHR, textStatus, errorThrow);
+                });
+              });
+            }
           }).fail(function (error) {
             console.log(error);
           });

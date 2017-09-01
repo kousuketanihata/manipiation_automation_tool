@@ -77,19 +77,35 @@ app.post('/crawl_site', function (req, res) {
 
   co(function* () {
     let results = [];
-    results.push(
-      // todo エラー処理
-      yield fool.travel({data: scraping})
-    );
+    try {
+      results.push(
+        yield fool.travel({data: scraping})
+      );
+    } catch (e) {
+      res.end(JSON.stringify({
+        success: false,
+        result: e
+      }));
+    }
     fool.kill();
     return results;
-  }).then(results => {
+  }).then((results) => {
     let designedResults = Array.prototype.concat.apply([], results);
     designedResults = Array.prototype.concat.apply([], designedResults);
-    res.end(JSON.stringify(designedResults));
-  }).catch(
-    // エラー処理
-  );
+    res.end(JSON.stringify({
+        success: true,
+        result: designedResults
+      }
+    ));
+  });
+});
+
+app.post('/delete/:id', (req, res) => {
+  const sqlite = new Sqlite();
+  const id = req.params.id;
+  sqlite.deleteConfig(id);
+  res.contentType("application/json");
+  res.status(200);
 });
 
 // クローリング処理を保存 渡されたオブジェクト全保存
@@ -104,7 +120,6 @@ app.post('/save', function (req, res) {
     // バリデーションエラーの個数が0以外の時
     if (result.array().length != 0) {
       console.log(result.array());
-      //
     } else {
       let scrapingByHttp = req.body;
       const sqlite = new Sqlite();
@@ -119,20 +134,6 @@ app.post('/save', function (req, res) {
     }
   });
 });
-
-app.post('/delete/:id', (req, res) => {
-  const sqlite = new Sqlite();
-  const id = req.params.id;
-  // エラー処理的なやつ
-  if (sqlite.delete(id)) {
-    res.contentType("application/json");
-    res.status(200);
-  } else {
-    // 500番返す的な
-    res.status(500);
-  }
-  ;
-})
 
 // apiで使う共通処理
 let apiMain = function (scrapingConfig) {
@@ -151,13 +152,24 @@ let apiMain = function (scrapingConfig) {
     scraping.push(tmp);
   }
   // クローリング
-  let parsedConfig = new Scraping().parsePreprocess(scraping, scrapingConfig.url)
+  let parsedConfig = new Scraping().parsePreprocess(scraping, scrapingConfig.url);
   const fool = new Fool();
   co(function* () {
     let results = [];
-    results.push(
-      yield  fool.travel({data: parsedConfig})
-    )
+    try {
+      results.push(
+        yield  fool.travel({data: parsedConfig})
+      );
+    } catch (e) {
+      console.log(e)
+      // エラーがあった時はメールを送信
+      let mail = new Mail();
+      mail.sendMail({
+        isScrapingSuccess:false,
+        emailTo:scrapingConfig.email,
+        emailFrom:
+      })
+    }
     return results
   }).then(results => {
     // 多重配列を一次元に直す もう少しいい感じにしたい
@@ -172,19 +184,23 @@ let apiMain = function (scrapingConfig) {
       results: designedResults,
     });
 
+    // ファイル出力を待つ必要がある
     setTimeout(() => {
       // 宛先に送信
       let mail = new Mail();
       mail.sendMail({
         filename: fileTitle,
-        emailTo: scrapingConfig.email,
+        isScrapingSuccess: true,
+        emailTo:
+        scrapingConfig.email,
         // todo 松原さんにもらったアドレスに変える
-        emailFrom: 'kosuke.tanihata@leverages.jp',
-        title: scrapingConfig.title,
-      });
+        title:
+        scrapingConfig.title,
+      })
+      ;
     }, 500)
   })
-}
+};
 
 // apiルーティング
 // 毎月実行されるやつ
@@ -204,7 +220,7 @@ app.get('/api/week', () => {
   let configs = sqlite.fetchBySchedule(masterConfig.schedule.week);
   configs((callback) => {
     apiMain(callback)
-  })
+  });
   res.header('Access-Control-Allow-Origin', '*');
   res.json({message: '通信に成功しました'});
 });
@@ -212,10 +228,10 @@ app.get('/api/week', () => {
 // 日毎のやつ
 app.get('/api/day', () => {
   const sqlite = new Sqlite();
-  let configs = sqlite.fetchBySchedule(masterConfig.schedule.day)
+  let configs = sqlite.fetchBySchedule(masterConfig.schedule.day);
   configs((callback) => {
     apiMain(callback)
-  })
+  });
   res.header('Access-Control-Allow-Origin', '*');
   res.json({message: '通信に成功しました'});
 });

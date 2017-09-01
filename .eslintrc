@@ -1,0 +1,19 @@
+{
+  "extends":  ["eslint:recommended"],
+  "plugins": [],
+  "env": {
+    "browser": false
+  },
+  "rules": {
+    "no-console": 1,
+    "quotes": [2, "single"],
+    "eqeqeq": 2,
+    "semi": [2, "always"],
+    "no-var": 2,
+    "prefer-const": 2,
+    "comma-style": [2, "last"],
+    "indent": [2, 4, {
+      'SwitchCase': 1,
+    }]
+  }
+}

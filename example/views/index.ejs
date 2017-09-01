@@ -1,68 +1,72 @@
 <%- include('layout_header') %>
 <div class="row" id="app">
-    <div class="columns">
-        <h3>クローリング計画一覧  </h3>
-        <table class="unstriped">
-            <thead>
-            <tr>
-                <th width="50">id</th>
-                <th width="250">タイトル <br> URL</th>
-                <th width="150">メール宛先</th>
-                <th width="150">実行スケジュール</th>
-                <th width="100">作成日</th>
-                <th width="100">更新日</th>
-                <th width="100"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <% for ( var i = 0 ; i < configs.length; i ++ ){%>
-                <tr>
-                    <td><a href="/edit/<%- configs[i].id %>"><%- configs[i].id %></a></td>
-                    <td><%- configs[i].title %> <br><%- configs[i].url %></td>
-                    <td><%- configs[i].email %></td>
-                    <% if (configs[i].schedule == master.schedule.month){%>
-                        <td>月毎</td>
-                    <% }else if(configs[i].schedule == master.schedule.week) {%>
-                        <td>週毎</td>
-                    <% } else if (configs[i].schedule == master.schedule.day){%>
-                        <td>日毎</td>
-                    <% }%>
-                    <td>
-                        <%- configs[i].created_at %>
-                    </td>
-                    <td><%- configs[i].updated_at %></td>
-                    <td><button v-on:click="remove(<%- configs[i].id %>)" class="alert button">削除</button></td>
-                </tr>
-            <% } %>
-            </tbody>
-        </table>
-    </div>
+  <div class="columns">
+    <h3>クローリング計画一覧 </h3>
+    <table class="unstriped">
+      <thead>
+      <tr>
+        <th width="50">id</th>
+        <th width="250">タイトル <br> URL</th>
+        <th width="150">メール宛先</th>
+        <th width="150">実行スケジュール</th>
+        <th width="100">作成日</th>
+        <th width="100">更新日</th>
+        <th width="100"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <% for ( var i = 0 ; i < configs.length; i++ ){ %>
+      <tr>
+        <td><a href="/edit/<%- configs[i].id %>"><%- configs[i].id %></a></td>
+        <td><%- configs[i].title %> <br><%- configs[i].url %></td>
+        <td><%- configs[i].email %></td>
+        <% if (configs[i].schedule == master.schedule.month){ %>
+        <td>月毎</td>
+        <% }else if(configs[i].schedule == master.schedule.week) { %>
+        <td>週毎</td>
+        <% } else if (configs[i].schedule == master.schedule.day){ %>
+        <td>日毎</td>
+        <% } %>
+        <td>
+          <%- configs[i].created_at %>
+        </td>
+        <td>
+          <%- configs[i].updated_at %>
+        </td>
+        <td>
+          <button v-on:click="remove(<%- configs[i].id %>)" class="alert button">削除</button>
+        </td>
+      </tr>
+      <% } %>
+      </tbody>
+    </table>
+  </div>
 </div>
 <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking:false">
-    <button data-remodal-action="close" class="remodal-close"></button>
-    <h5>削除してもよろしいでしょうか？</h5>
-    <button data-remodal-action="cancel" class="remodal-cancel">Cancel</button>
-    <button data-remodal-action="confirm" class="remodal-confirm">OK</button>
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h5>削除してもよろしいでしょうか？</h5>
+  <button data-remodal-action="cancel" class="remodal-cancel">Cancel</button>
+  <button data-remodal-action="confirm" class="remodal-confirm">OK</button>
 </div>
 <%- include('layout_footer') %>
 
 <script>
-    let app = new Vue({
-        el : '#app',
-        methods :{
-            remove : function(id){
-                // ポップアップ出して確認
-                let modal = $('[data-remodal-id=modal]').remodal();
-                modal.open();
-                $(document).on('confirmation', '.remodal', function () {
-                    $.post({
-                        url: '/delete/'+ id,
-                    }).done(
-                        location.href="/"
-                    );
-                });
-            }
-        }
-    });
+  let app = new Vue({
+    el: '#app',
+    methods: {
+      remove: function (id) {
+        // ポップアップ出して確認
+        let modal = $('[data-remodal-id=modal]').remodal();
+        modal.open();
+        $(document).on('confirmation', '.remodal', () => {
+          $.post({
+            url: '/delete/' + id,
+          }).done(
+            location.href = "/"
+          );
+        });
+      }
+    }
+  });
 </script>
 </html>

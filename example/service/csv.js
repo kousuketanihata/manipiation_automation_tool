@@ -20,10 +20,10 @@ class Csv {
     sheet.name = fileName;
     sheet.data = [];
     sheet.data[0] = [];
-    // 記述処理
+
     // ヘッダー部分
     sheet.data[0][0] = "結果";
-
+    // 記述処理
     let out = fs.createWriteStream(fileName)
     for (let right_i = 0; right_i <= scraping.results.length - 1; right_i++) {
       sheet.data[right_i + 1] = [];
