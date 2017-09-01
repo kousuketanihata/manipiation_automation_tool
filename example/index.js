@@ -138,8 +138,8 @@ app.post('/save', function (req, res) {
 // apiで使う共通処理
 let apiMain = function (scrapingConfig) {
 
+  // スクレイピングがエラーだった時に呼ばれる処理
   let onError = function (conf) {
-    console.log('クローリングがエラーだ 辛い');
     let mail = new Mail();
     mail.sendErrorMail({
       emailTo:scrapingConfig.email,
@@ -199,7 +199,7 @@ let apiMain = function (scrapingConfig) {
   )
 };
 
-// apiルーティング
+// 以下バッチが叩くapiのルーティング
 // 毎月実行されるやつ
 app.get('/api/month', (req, res) => {
   const sqlite = new Sqlite();
