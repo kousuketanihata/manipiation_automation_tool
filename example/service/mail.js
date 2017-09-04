@@ -1,5 +1,5 @@
 class Mail {
-  constructor(){
+  constructor() {
     require('dotenv').config();
   }
 
@@ -7,7 +7,7 @@ class Mail {
     let fs = require('fs');
     let helper = require('sendgrid').mail;
     //todo 松原さんからもらう予定のメールアドレスにする
-    let fromEmail = new helper.Email('kosuke.tanihata@leverages.jp');
+    let fromEmail = new helper.Email('media_gs@leverages.jp');
     let toEmail = new helper.Email(destination.emailTo);
     let subject = destination.title + '調査結果';
     let content = new helper.Content('text/plain', destination.title + '調査結果');
@@ -19,6 +19,7 @@ class Mail {
       if (err !== null) {
       }
     });
+
     let attachment = new helper.Attachment();
     let file = fs.readFileSync(destination.filename);
     let base64File = new Buffer(file).toString('base64');
@@ -49,7 +50,7 @@ class Mail {
   sendErrorMail(destination) {
     let helper = require('sendgrid').mail;
     // todo 修正(松原さんにアドレスもらう)
-    let fromEmail = new helper.Email('kosuke.tanihata@leverages.jp');
+    let fromEmail = new helper.Email('media_gs@leverages.jp');
     let toEmail = new helper.Email(destination.emailTo);
     let subject = destination.title + 'エラー報告';
     let content = new helper.Content('text/plain', destination.title + "を調査した結果以下のエラーが発生しています\n" + destination.error);
@@ -65,7 +66,7 @@ class Mail {
     sendgrid.API(request, function (error, response) {
       if (error) {
         console.log('Error response received');
-      }else{
+      } else {
         console.log('メール送信成功')
       }
     })

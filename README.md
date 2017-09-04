@@ -6,8 +6,6 @@
 sendgridでアカウント作成
 
 ## todo
-エラー処理
-バッチ処理
 
 ## 使用方法
 
@@ -29,7 +27,7 @@ npm run example
 ```
 
 ### サンプルコード
-```es6
+
 const data = {
   data: [
     ["goto", "https://www.google.co.jp/"],
@@ -40,28 +38,7 @@ const data = {
   ]
 };
 
-const fool = new Fool();
 
-fool.travel(data)
-  .then(result => {
-    console.log(result);
-  });
-
-/**
-* CONSOLE
-*
-[ [ 'foolの意味 - 英和辞典 Weblio辞書',
-    'FOOLの番長ブログ - アメーバブログ',
-    'foolの意味・用例｜英辞郎 on the WEB：アルク',
-    'foolの意味 - goo辞書 英和和英',
-    'FooL',
-    'FOOLとは (フールとは) [単語記事] - ニコニコ大百科',
-    'フール(FOOL)｜ホットペッパービューティー',
-    'FOOL THE PUBLIC OFFICIAL WEB SITE - Jimdo',
-    'Shaqtin\' A Fool - NBA.com',
-    'Fool.com: Stock Investing Advice | Stock Research' ] ]
-*/
-```
 
 ### その他の操作について
 
