@@ -2,12 +2,14 @@
 const co = require('co');
 const expressValidator = require("express-validator");
 const express = require('express');
-const expressBatch = require("express-batch");
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 
 // 自作ライブラリー(service以下に設置)
-import Csv from "./service/csv";
 import Fool from '../index';
+import Csv from "./service/csv";
 import Sqlite from './service/sqlite.js';
 import Mail from './service/mail.js'
 import Scraping from './service/scraping';
@@ -15,6 +17,7 @@ import Scraping from './service/scraping';
 let app = express();
 // エクスプレス初期設定
 app.use(require('connect-flash')());
+app.use(morgan('combined'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -23,10 +26,10 @@ app.use(bodyParser.urlencoded({
   })
 );
 app.use(expressValidator());
-app.use(function (req, res, next) {
-  res.locals.messages = require('express-messages')(req, res);
-  next();
-});
+// app.use(function (req, res, next) {
+//   res.locals.messages = require('express-messages')(req, res);
+//   next();
+// });
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -34,7 +37,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-// schedule
+logger.level = 'debug';
+// scheduleのコンフィグ
 const masterConfig = {
   schedule: {
     month: 1,
@@ -86,6 +90,7 @@ app.post('/crawl_site', function (req, res) {
         success: false,
         result: e
       }));
+
     }
     fool.kill();
     return results;
@@ -201,7 +206,7 @@ let apiMain = function (scrapingConfig) {
   })
 };
 
-// 以下バッチが叩くapiのルーティング
+// バッチが叩くapiのルーティング
 // 毎月実行されるやつ
 app.get('/api/month', (req, res) => {
   const sqlite = new Sqlite();
@@ -212,8 +217,8 @@ app.get('/api/month', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.json({message: '通信に成功しました'});
 });
-//
-// // 週ごとのやつ
+
+//  週ごとのやつ
 app.get('/api/week', () => {
   const sqlite = new Sqlite();
   let configs = sqlite.fetchBySchedule(masterConfig.schedule.week);
@@ -235,5 +240,5 @@ app.get('/api/day', () => {
   res.json({message: '通信に成功しました'});
 });
 
-app.listen(9988, () => {
+app.listen(3000, () => {
 });
