@@ -3,9 +3,17 @@ const co = require('co');
 const expressValidator = require("express-validator");
 const express = require('express');
 const bodyParser = require('body-parser');
-const morgan = require('morgan');
 const log4js = require('log4js');
-const logger = log4js.getLogger();
+log4js.configure({
+  appenders: {
+    out: { type: 'stdout' },
+    app: { type: 'file', filename: 'application.log' }
+  },
+  categories: {
+    default: { appenders: [ 'out', 'app' ], level: 'debug' }
+  }
+});
+const logger = log4js.getLogger('system');
 
 // 自作ライブラリー(service以下に設置)
 import Fool from '../index';
@@ -16,8 +24,8 @@ import Scraping from './service/scraping';
 
 let app = express();
 // エクスプレス初期設定
+app.use(log4js.connectLogger(logger, {level: 'auto'}));
 app.use(require('connect-flash')());
-app.use(morgan('combined'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -37,7 +45,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-logger.level = 'debug';
+//logger.level = 'debug';
 // scheduleのコンフィグ
 const masterConfig = {
   schedule: {
@@ -86,6 +94,7 @@ app.post('/crawl_site', function (req, res) {
         yield fool.travel({data: scraping})
       );
     } catch (e) {
+      logger.info('catch');
       res.end(JSON.stringify({
         success: false,
         result: e
@@ -95,6 +104,7 @@ app.post('/crawl_site', function (req, res) {
     fool.kill();
     return results;
   }).then((results) => {
+    logger.info('then');
     let designedResults = Array.prototype.concat.apply([], results);
     designedResults = Array.prototype.concat.apply([], designedResults);
     res.end(JSON.stringify({

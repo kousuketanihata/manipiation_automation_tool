@@ -6,3 +6,4 @@ npm-debug.log
 *.csv
 //*.xlsx
 .env
+application.log
