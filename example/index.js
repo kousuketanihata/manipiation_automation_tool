@@ -95,23 +95,27 @@ app.post('/crawl_site', function (req, res) {
       );
     } catch (e) {
       logger.info('catch');
+      logger.info(e);
+      results['error'] = e;
       res.end(JSON.stringify({
         success: false,
         result: e
       }));
-
     }
     fool.kill();
+    console.log(results);
     return results;
   }).then((results) => {
-    logger.info('then');
+    logger.info(results);
     let designedResults = Array.prototype.concat.apply([], results);
     designedResults = Array.prototype.concat.apply([], designedResults);
-    res.end(JSON.stringify({
-        success: true,
-        result: designedResults
-      }
-    ));
+    if( typeof results['error'] !== undefined ){
+      res.end(JSON.stringify({
+          success: true,
+          result: designedResults
+        }
+      ));
+    }
   });
 });
 
