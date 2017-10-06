@@ -17,10 +17,10 @@ const logger = log4js.getLogger('system');
 
 // 自作ライブラリー(service以下に設置)
 import Fool from '../index';
-import Csv from "./service/csv";
+import Csv from "./service/csv.js";
 import Sqlite from './service/sqlite.js';
 import Mail from './service/mail.js'
-import Scraping from './service/scraping';
+import Scraping from './service/scraping.js';
 
 let app = express();
 // エクスプレス初期設定
