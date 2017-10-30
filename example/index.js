@@ -34,10 +34,6 @@ app.use(bodyParser.urlencoded({
   })
 );
 app.use(expressValidator());
-// app.use(function (req, res, next) {
-//   res.locals.messages = require('express-messages')(req, res);
-//   next();
-// });
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -45,7 +41,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-//logger.level = 'debug';
 // scheduleのコンフィグ
 const masterConfig = {
   schedule: {
@@ -89,21 +84,19 @@ app.post('/crawl_site', function (req, res) {
 
   co(function* () {
     let results = [];
-    try {
+    //try {
       results.push(
         yield fool.travel({data: scraping})
       );
-    } catch (e) {
-      logger.info('catch');
-      logger.info(e);
-      results['error'] = e;
-      res.end(JSON.stringify({
-        success: false,
-        result: e
-      }));
-    }
+    //} catch (e) {
+    //   logger.info(e);
+    //   results['error'] = e;
+    //   res.end(JSON.stringify({
+    //     success: false,
+    //     result: e
+    //  }));
+    //}
     fool.kill();
-    console.log(results);
     return results;
   }).then((results) => {
     logger.info(results);
@@ -127,7 +120,7 @@ app.post('/delete/:id', (req, res) => {
   res.status(200);
 });
 
-// クローリング処理を保存 渡されたオブジェクト全保存
+// クローリング処理を保存 渡されたオブジェクト全保存する
 app.post('/save', function (req, res) {
   // バリデーション
   req.check('title', 'タイトル').notEmpty();
@@ -210,7 +203,6 @@ let apiMain = function (scrapingConfig) {
         filename: fileTitle,
         isScrapingSuccess: true,
         emailTo: scrapingConfig.email,
-        // todo 松原さんにもらったアドレスに変える
         title: scrapingConfig.title,
       });
     }, 500)
@@ -254,5 +246,5 @@ app.get('/api/day', () => {
   res.json({message: '通信に成功しました'});
 });
 
-app.listen(3000, () => {
+app.listen(9999, () => {
 });
